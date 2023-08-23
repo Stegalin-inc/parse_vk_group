@@ -105,6 +105,7 @@ last_name TEXT,
 sex int
 );
 '''
+model_user = ('id', 'first_name', 'last_name', 'sex')
 
 sql_user_by_posts = 'SELECT uid, count(uid) from posts GROUP by uid order by count(uid) DESC'
 sql_user_by_posts_with_names = 'select count(uid) as cnt, uid, first_name, last_name from posts left join (select DISTINCT * from users) as u on posts.uid = u.id  group by uid order by count(uid) desc'
@@ -128,6 +129,20 @@ def prepareToSql(data):
 def writeToDb(data):
     c = con.cursor()
     c.executemany('REPLACE INTO posts VALUES(?, ?, ?, ?, ?, ?, ?, ?)', prepareToSql(data))
+    con.commit()
+
+def writeDataToTable(data, table, model):
+    def prepareSqlData(data):
+        result = []
+        for i in data:
+            record = []
+            for field in model:
+              record.append(i[field])
+            result.append(tuple(record))
+
+        return result
+    c = con.cursor()
+    c.executemany(f'REPLACE INTO {table} VALUES({",".join(["?"]*len(model))})', prepareSqlData(data))
     con.commit()
 
 def writeUsers(data):
