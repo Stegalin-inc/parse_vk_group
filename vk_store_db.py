@@ -11,7 +11,7 @@ def getToken():
     start = token_url.find('access_token=')+len('access_token=')
     end = token_url.find('&expires_in')
     return token_url[start:end]
-access_token = 'vk1.a.1UHiyidgSN3L-TVilvlSwSWQzEA7Xnc7mfB27_LdyXrD7SxrZf8pKrmCBOCbmd5THyPnurd2Yb9ytjQkyVjslHaIHleJ6c3-rlH4p2jRifseXg5VPZUglVqa2cPqt3s-8tqNkJq1iWnagqSLKJfYzZBwc1sjowiIsUZZyuZGH7BNGKAIgKrG8AMx0OX-ZJBXMqKF0b5sRbZrl8xqp56GPQ'#getToken()
+access_token = 'vk1.a.1UHiyidgSN3L-TVilvlSwSWQzEA7Xnc7876786987789nagqSLKJfYzZBwc1sjowiIsUZZyuZGH7BNGKAIgKrG8AMx0OX-ZJBXMqKF0b5sRbZrl8xqp56GPQ'#getToken()
 
 group_id = -100407134
 
