@@ -1,0 +1,45 @@
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+  const createTable = (data, render = {}) => {
+    const headers = Object.keys(data[0])
+    return `
+      <table>
+        <thead>
+            ${headers.map(key => `<th>${key}</th>`).join('')}
+        </thead>
+        <tbody>
+          ${data.map(row => `<tr>${headers.map(key => `<td>${render[key] ? render[key](row[key], row) : row[key]}</td>`).join('')}</tr>`).join('')}
+        </tbody>
+      </table>
+      `
+  }
+  google.charts.load("current", { packages: ["corechart"] });
+  google.charts.setOnLoadCallback(drawChart);
+
+  async function drawChart() {
+    let D = await (await fetch('api/dailystat')).json()
+    D = D.map(x => [new Date(x.day), x.count])
+    var data = google.visualization.arrayToDataTable([['X', 'Кол-во постов'], ...D]);
+
+    var options = {
+      title: 'Количество постов по дням:',
+      height: 700,
+      explorer: { actions: ['dragToZoom', 'rightClickToReset'], axis: 'horizontal', maxZoomIn: 40 },
+    };
+
+    var chart = new google.visualization.LineChart(document.getElementById('daily-stat-chart'));
+    chart.draw(data, options);
+
+    let U = await (await fetch('api/usertopposts')).json()
+    document.getElementById("table-users-top-posts").innerHTML = createTable(U, { uid: (uid, row) => `<button onclick="fetchPosts(${uid})">posts</button><a href="http://vk.com/id${uid}" target="_blank">${row.first_name} ${row.last_name}</a>` })
+  }
+  async function fetchPosts(uid) {
+    let data = await (await fetch('api/userposts/' + uid)).json()
+    document.getElementById("table-users-posts-detail").innerHTML = createTable(data, { d: d => new Date(d * 1000).toLocaleString(), id: id => `<a href="https://vk.com/wall-100407134_${id}" target="_blank">${id}</a>` })
+  }
+</script>
+
+<div id="daily-stat-chart"></div>
+<div id="table-users-top-posts" style="height: 300px; overflow-y: scroll;"></div>
+<div id="table-users-posts-detail" style="height: 300px; overflow-y: scroll;"></div>
+<a href="http://" target="_blank" rel="noopener noreferrer"></a>
