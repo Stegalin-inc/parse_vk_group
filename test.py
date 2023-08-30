@@ -1,12 +1,18 @@
-from models.model import model
-from models.post import post
+from db import db
+import re
 
-a= post()
-b=model()
-#b.print()
-res=", ".join(map(lambda k: f"{k} {a.model[k]}", a.model.keys()))
-print(res)
-model.x=900
-a.print()
-#b.print()
-a.print()
+text = 'sdfs'
+
+def getWordStat():
+    texts = db.readDataBySql(('t'), 'SELECT t FROM posts')
+    wordRe = re.compile('[а-яё]+', re.IGNORECASE)
+    result = {}
+    for t in texts:
+        for w in wordRe.findall(t['t']):
+            w = w.lower()
+            if(w not in result): result[w] = 0
+            result[w] += 1
+    return dict(sorted(result.items(), key=lambda item: item[1], reverse=True)[:1000])
+
+print(getWordStat().keys())
+            

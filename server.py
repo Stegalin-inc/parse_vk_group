@@ -15,9 +15,11 @@ def getTopUser():
 class RequestHandler(BaseHTTPRequestHandler):
     def xuesos(self, params):
         return "{'message': hello xuesosi!}"
+    
     def dailystat(self, params):
         stat = getDailyStat()
         return json.dumps(stat)
+    
     def usertopposts(self, params):
         stat = getTopUser()
         return json.dumps(stat)
@@ -27,8 +29,22 @@ class RequestHandler(BaseHTTPRequestHandler):
         model = ('id', 'c', 'l', 'd', 't')
         sql = f"SELECT id, c, l, d, t FROM posts WHERE posts.uid = {uid}"
         stat = db.readDataBySql(model, sql)
-
         return json.dumps(stat)
+
+    def postsbyday(self, params):
+        day = params[0]
+        model = ('id', 'c', 'l', 'd', 'name', 't')
+        sql = f"SELECT id, c, l, d, (SELECT first_name||' '||last_name FROM users WHERE users.id=posts.uid) as name, t FROM posts WHERE date(d, 'unixepoch')='{day}'"
+        stat = db.readDataBySql(model, sql)
+        return json.dumps(stat)
+    
+    def userlikes(self, params):
+        uid = params[0]
+        model = ('pid', 'from_uid', 'from_name', 'from_sex', 'to_uid', 'to_name', 'to_sex', 'cnt')
+        sql = f"SELECT *, count(pid) as cnt FROM likes_extended WHERE from_uid={uid} GROUP BY to_uid ORDER BY cnt DESC"
+        stat = db.readDataBySql(model, sql)
+        return json.dumps(stat)
+    
     def do_GET(self):
         code = 200
         response = b'777'

@@ -1,11 +1,56 @@
+<style>
+  body,
+  html {
+    margin: 0;
+    padding: 0;
+  }
+
+  tr {
+    margin: 7px 5px;
+    border: 1px solid lightgray;
+    border-width: 1px 0;
+  }
+
+  td {
+    padding: 5px 2px;
+  }
+
+  td button {
+    margin: 5px;
+  }
+
+  thead {
+    position: sticky;
+    top: 0;
+    height: 40px;
+  }
+
+  th {
+    background-color: lightgray;
+  }
+
+  table {
+    border-collapse: collapse;
+    border: 1px solid darkgray;
+    border-radius: 5px;
+  }
+
+  .table-warapper {
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+    width: 100%;
+    overflow-y: scroll;
+  }
+</style>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-  const createTable = (data, render = {}) => {
+  const createTable = (data, render = {}, headerTitle = {}) => {
     const headers = Object.keys(data[0])
     return `
       <table>
         <thead>
-            ${headers.map(key => `<th>${key}</th>`).join('')}
+            ${headers.map(key => `<th>${headerTitle[key] || key}</th>`).join('')}
         </thead>
         <tbody>
           ${data.map(row => `<tr>${headers.map(key => `<td>${render[key] ? render[key](row[key], row) : row[key]}</td>`).join('')}</tr>`).join('')}
@@ -13,12 +58,21 @@
       </table>
       `
   }
+  const createTableAsync = async (selector, dataPromise, tableProps, headers) => {
+    const el = document.getElementById(selector)
+    el.innerText = "Загрузка..."
+    const data = await dataPromise
+    el.innerHTML = createTable(data, tableProps, headers)
+
+  }
+  const linkToPost = (pid, text) => `<a href="https://vk.com/wall-100407134_${pid}" target="_blank">${text || pid}</a>`
+
   google.charts.load("current", { packages: ["corechart"] });
   google.charts.setOnLoadCallback(drawChart);
 
   async function drawChart() {
-    let D = await (await fetch('api/dailystat')).json()
-    D = D.map(x => [new Date(x.day), x.count])
+    let fetched = await (await fetch('api/dailystat')).json()
+    const D = fetched.map(x => [new Date(x.day), x.count])
     var data = google.visualization.arrayToDataTable([['X', 'Кол-во постов'], ...D]);
 
     var options = {
@@ -28,18 +82,39 @@
     };
 
     var chart = new google.visualization.LineChart(document.getElementById('daily-stat-chart'));
+    // The select handler. Call the chart's getSelection() method
+    function selectHandler() {
+      var selectedItem = chart.getSelection()[0];
+      const day = (fetched[selectedItem.row].day)
+      const tableProps = { d: d => new Date(d * 1000).toLocaleString(), id: pid => linkToPost(pid) }
+      const dataPromise = fetch('api/postsbyday/' + day).then(x => x.json())
+      const headers = { l: '💗', d: '🕒', c: '💬', t: '📝' }
+      createTableAsync("table-dayly-posts", dataPromise, tableProps, headers)
+    }
+
+    // Listen for the 'select' event, and call my function selectHandler() when
+    // the user selects something on the chart.
+    google.visualization.events.addListener(chart, 'select', selectHandler)
     chart.draw(data, options);
 
-    let U = await (await fetch('api/usertopposts')).json()
-    document.getElementById("table-users-top-posts").innerHTML = createTable(U, { uid: (uid, row) => `<button onclick="fetchPosts(${uid})">posts</button><a href="http://vk.com/id${uid}" target="_blank">${row.first_name} ${row.last_name}</a>` })
+    // let U = await (await fetch('api/usertopposts')).json()
+    // document.getElementById("table-users-top-posts").innerHTML = createTable(U, { uid: (uid, row) => `<button onclick="fetchPosts(${uid})">posts</button><a href="http://vk.com/id${uid}" target="_blank">${row.first_name} ${row.last_name}</a>` })
+    const tableProps = { uid: (uid, row) => `<button onclick="fetchPosts(${uid})">posts</button><a href="http://vk.com/id${uid}" target="_blank">${row.first_name} ${row.last_name}</a>` }
+    const dataPromise = fetch('api/usertopposts').then(x => x.json())
+    createTableAsync("table-users-top-posts", dataPromise, tableProps)
   }
   async function fetchPosts(uid) {
-    let data = await (await fetch('api/userposts/' + uid)).json()
-    document.getElementById("table-users-posts-detail").innerHTML = createTable(data, { d: d => new Date(d * 1000).toLocaleString(), id: id => `<a href="https://vk.com/wall-100407134_${id}" target="_blank">${id}</a>` })
+    //let data = await (await fetch('api/userposts/' + uid)).json()
+    const tableProps = { d: d => new Date(d * 1000).toLocaleString(), id: pid => linkToPost(pid) }
+    const dataPromise = fetch('api/userposts/' + uid).then(x => x.json())
+    const headers = { l: '💗', d: '🕒', c: '💬', t: '📝' }
+    createTableAsync("table-users-posts-detail", dataPromise, tableProps, headers)
+    //document.getElementById("table-users-posts-detail").innerHTML = createTable(data, { d: d => new Date(d * 1000).toLocaleString(), id: pid=>linkToPost(pid) })
   }
 </script>
 
 <div id="daily-stat-chart"></div>
-<div id="table-users-top-posts" style="height: 300px; overflow-y: scroll;"></div>
-<div id="table-users-posts-detail" style="height: 300px; overflow-y: scroll;"></div>
+<div id="table-users-top-posts" class="table-warapper"></div>
+<div id="table-users-posts-detail" class="table-warapper"></div>
+<div id="table-dayly-posts" class="table-warapper"></div>
 <a href="http://" target="_blank" rel="noopener noreferrer"></a>
