@@ -1,0 +1,67 @@
+body{
+    --cell-border-color: lightgray;
+    --window-background-color: #ededf5;
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+}
+
+tr {
+    margin: 7px 5px;
+    border: 1px solid var(--cell-border-color);
+    border-width: 1px 0;
+}
+
+td {
+    padding: 5px 2px;
+}
+
+td button {
+    margin: 5px;
+}
+
+thead {
+    position: sticky;
+    top: 0;
+    height: 40px;
+}
+
+th {
+    background-color: lightgray;
+}
+
+table {
+    border-collapse: collapse;
+    border: 1px solid darkgray;
+    border-radius: 5px;
+}
+
+.table-warapper {
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+.window {
+    background: var(--window-background-color);
+    position: fixed;
+    display: block;
+    top: 50%;
+    left: 50%;
+    padding: 14px 12px;
+    border: 1px solid black;
+    border-radius: 7px;
+    max-width: 300px;
+    word-wrap: break-word;
+    transform: translate(-50%, -50%);
+}
+
+.win-close-button {
+    margin: 12px auto 0px auto;
+    display: block;
+}
