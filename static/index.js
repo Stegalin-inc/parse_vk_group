@@ -1,12 +1,12 @@
 const createTable = (data, render = {}, headerTitle = {}) => {
     const headers = Object.keys(data[0])
     return `
-      <table>
+      <table class="sortable">
         <thead>
             ${headers.map(key => `<th>${headerTitle[key] || key}</th>`).join('')}
         </thead>
         <tbody>
-          ${data.map(row => `<tr>${headers.map(key => `<td>${render[key] ? render[key](row[key], row) : row[key]}</td>`).join('')}</tr>`).join('')}
+          ${data.map(row => `<tr  class="item">${headers.map(key => `<td>${render[key] ? render[key](row[key], row) : row[key]}</td>`).join('')}</tr>`).join('')}
         </tbody>
       </table>
       `
@@ -46,6 +46,7 @@ const createTableAsync = async (selector, dataPromise, tableProps, headers) => {
     el.innerText = "Загрузка..."
     const data = await dataPromise
     el.innerHTML = createTable(data, tableProps, headers)
+    sorttable.makeSortable(el.getElementsByTagName('table')[0]);
 
 }
 const linkToPost = (pid, text) => `<a href="https://vk.com/wall-100407134_${pid}" target="_blank">${text || pid}</a>`
@@ -105,6 +106,17 @@ async function fetchPosts(uid) {
     //document.getElementById("table-users-posts-detail").innerHTML = createTable(data, { d: d => new Date(d * 1000).toLocaleString(), id: pid=>linkToPost(pid) })
 }
 
+const mapUserTop = (data) => data.map(x=>({
+    ...x,
+    name: `${x.first_name} ${x.last_name}`,
+    first_name:undefined,
+    last_name:undefined,
+    PL: (x.total_likes/x.cnt).toFixed(1),
+    PC: (x.total_comments/x.cnt).toFixed(1),
+    LW: Math.sqrt(x.total_likes**2+x.cnt**2).toFixed(1),
+    CW: Math.sqrt(x.total_comments*x.cnt).toFixed(1),
+}))
+
 function loadPostStat() {
     const startDate = document.getElementById('startDate').value
     const endDate = document.getElementById('endDate').value
@@ -113,6 +125,6 @@ function loadPostStat() {
     <button onclick="fetchWords(${uid})">Слова</button>
     <a href="http://vk.com/id${uid}" target="_blank">${row.first_name} ${row.last_name}</a>
 ` }
-const dataPromise = fetch(`api/usertopposts/${startDate}/${endDate}`).then(x => x.json())
+const dataPromise = fetch(`api/usertopposts/${startDate}/${endDate}`).then(x => x.json().then(mapUserTop))
 createTableAsync("table-users-top-posts", dataPromise, tableProps)
 }
