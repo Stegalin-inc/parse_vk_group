@@ -15,22 +15,29 @@ const createTable = (data, render = {}, headerTitle = {}) => {
 const openWindow = content => {
     const win = document.createElement('div')
     win.className = 'window'
+
+    
+    const winBody = document.createElement('div')
+    winBody.className = 'win-body'
+    
     const button = document.createElement('button')
     button.className = 'win-close-button'
     button.onclick = () => win.remove()
     button.innerText = 'Закрыть'
+    
+    
+    win.append(winBody)
+    win.append(button)
     if (typeof content === 'string') {
-        win.innerHTML = content
+        winBody.innerHTML = content
     }
     else if (content instanceof Promise) {
-        win.innerText = 'Загрузка...'
+        winBody.innerText = 'Загрузка...'
         content.then(x => {
             if (!win) return
-            win.innerHTML = x
-            win.append(button)
+            winBody.innerHTML = x
         })
     }
-    win.append(button)
     document.body.append(win)
 }
 
@@ -83,6 +90,7 @@ async function drawChart() {
     const dataPromise = fetch('api/usertopposts').then(x => x.json())
     createTableAsync("table-users-top-posts", dataPromise, tableProps)
 }
+
 async function fetchWords(uid) {
     openWindow(fetch('api/getUniqUsersWords/' + uid).then(x => x.json()).then(x => (JSON.stringify(x))))
 }
@@ -95,4 +103,16 @@ async function fetchPosts(uid) {
     const headers = { l: '💗', d: '🕒', c: '💬', t: '📝' }
     createTableAsync("table-users-posts-detail", dataPromise, tableProps, headers)
     //document.getElementById("table-users-posts-detail").innerHTML = createTable(data, { d: d => new Date(d * 1000).toLocaleString(), id: pid=>linkToPost(pid) })
+}
+
+function loadPostStat() {
+    const startDate = document.getElementById('startDate').value
+    const endDate = document.getElementById('endDate').value
+    const tableProps = { uid: (uid, row) => `
+    <button onclick="fetchPosts(${uid})">Посты</button>
+    <button onclick="fetchWords(${uid})">Слова</button>
+    <a href="http://vk.com/id${uid}" target="_blank">${row.first_name} ${row.last_name}</a>
+` }
+const dataPromise = fetch(`api/usertopposts/${startDate}/${endDate}`).then(x => x.json())
+createTableAsync("table-users-top-posts", dataPromise, tableProps)
 }

@@ -42,7 +42,7 @@ sex int
 model_user = ('id', 'first_name', 'last_name', 'sex')
 
 user_by_posts = 'SELECT uid, count(uid) from posts GROUP by uid order by count(uid) DESC'
-user_by_posts_with_names = 'select count(uid) as cnt, uid, first_name, last_name from posts left join (select DISTINCT * from users) as u on posts.uid = u.id  group by uid order by count(uid) desc'
+user_by_posts_with_names = 'select count(uid) as cnt, uid, first_name, last_name from posts left join (select DISTINCT * from users) as u on posts.uid = u.id where date(d, "unixepoch") between "%s" and "%s"  group by uid order by count(uid) desc'
 get_unloaded_users = 'select distinct uid from posts where uid not in (SELECT id from users)'
 get_unloaded_users_likes = 'select distinct uid from likes where uid not in (SELECT id from users)'
 post_without_loaded_user_limit = 'select id from posts where uid not in ( select id from users) limit 25'

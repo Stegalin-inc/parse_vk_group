@@ -8,9 +8,19 @@ def getDailyStat():
     model = ("day", "count")
     return db.readDataBySql(model, sqls.group_by_day)
 
-def getTopUser():
-    model = ("cnt", "uid", "first_name", "last_name")
-    return db.readDataBySql(model, sqls.user_by_posts_with_names)
+def getTopUser(params):
+    model = ("cnt", "uid", "first_name", "last_name", 'total_likes', 'total_comments')
+    start = params[0] if len(params)>0 else '2000-01-01'
+    end = params[1] if len(params)>1 else '2100-01-01'
+    sql='''
+        SELECT count(uid) AS cnt, uid, first_name, last_name, sum(l), sum(c)
+        FROM posts LEFT JOIN (SELECT DISTINCT * FROM users) AS u ON posts.uid = u.id 
+        WHERE date(d, "unixepoch") BETWEEN "%s" AND "%s"  
+        GROUP BY uid 
+        ORDER BY count(uid) DESC
+    '''
+
+    return db.readDataBySql(model, sql % (start, end))
 
 def getWordStatByUser(uid):
     texts = db.readDataBySql(('t'), f'SELECT t FROM posts where uid = {uid}')
@@ -32,8 +42,9 @@ def getUniqUsersWords(uid):
     result=[]
     for (word, count) in userWords:
         coeff = count/allWords[word] 
-        if coeff>0.5 and coeff < 0.9:
-            result.append(word)
+        # if coeff>0.5 and coeff < 0.9:
+        result.append([word, coeff])
+    return sorted(result, key=lambda item: item[1], reverse=True)[:50]
     return result
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -45,7 +56,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         return json.dumps(stat)
     
     def usertopposts(self, params):
-        stat = getTopUser()
+        stat = getTopUser(params)
         return json.dumps(stat)
 
     def userposts(self, params):

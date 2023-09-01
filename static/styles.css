@@ -47,21 +47,27 @@ table {
     overflow-y: scroll;
 }
 
+.win-body{
+    padding: 14px 12px;
+    overflow: auto;
+    max-height: 500px;
+}
+
 .window {
     background: var(--window-background-color);
     position: fixed;
     display: block;
     top: 50%;
     left: 50%;
-    padding: 14px 12px;
     border: 1px solid black;
     border-radius: 7px;
     max-width: 300px;
     word-wrap: break-word;
     transform: translate(-50%, -50%);
+    overflow: hidden;
 }
 
 .win-close-button {
-    margin: 12px auto 0px auto;
+    margin: 12px auto;
     display: block;
 }
