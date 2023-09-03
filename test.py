@@ -1,19 +1,42 @@
+import random
 from db import db
 import re
 
 def getWordStat():
     texts = db.readDataBySql(('t'), 'SELECT t FROM posts')
-    wordRe = re.compile('[а-яё]+', re.IGNORECASE)
+    wordRe = re.compile('[а-яё.?!,]+', re.IGNORECASE)
     result = {}
     for t in texts:
+        prevWord = '~@'
         for w in wordRe.findall(t['t']):
             w = w.lower()
-            if(w not in result): result[w] = 0
-            result[w] += 1
-    return sorted(result.items(), key=lambda item: item[1], reverse=True)
-c=db.con.cursor()
-c.executemany('replace into wordstat values(?, ?)', getWordStat())
-db.con.commit()
+            if(prevWord not in result): result[prevWord] = {}
+            if(w not in result[prevWord]): result[prevWord][w] = 0
+            result[prevWord][w] += 1
+            prevWord=w
+    return result
+
+stat = getWordStat()
+
+def getNxtWord(prev):
+    sum = (stat[prev].values())
+    return random.choices(list(stat[prev].keys()), weights=list(stat[prev].values()))[0]
+
+def genText(start='~@'):
+    prev = start
+    for i in range(100):
+        #start = random.choice([start, getNxtWord(prev)])
+        print(start, end=' ')
+        prev = start
+        start=getNxtWord(start)
+
+def getWordPredict():
+    words = db.readDataBySql(('word'), 'SELECT word from wordstat WHERE count > 10')
+    stat = {}
+    for word in words:
+        if word.word not in stat: stat[word.word] = {}
+
+
 """
 def getWordStatByUser(uid):
     texts = db.readDataBySql(('t'), f'SELECT t FROM posts where uid = {uid}')

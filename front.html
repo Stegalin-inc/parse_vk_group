@@ -3,15 +3,21 @@
 <script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
 <script type="text/javascript" src="./static/index.js"></script>
 
-<div id="daily-stat-chart"></div>
-<div style="display: flex;padding: 5px;gap: 5px;">
-  <label for="startDate">Начало:</label><input type="date" name="startDate" id="startDate" value="2023-01-01">
-  <label for="endDate">Конец:</label><input type="date" name="endDate" id="endDate" value="2024-01-01">
-  <button onclick="loadPostStat()">Загрузить</button>
+<div id="daily-stat-chart" hidden></div>
+<div class="card">
+  <div style="display: flex;padding: 5px;gap: 5px; background-color: var(--top-bar-color);">
+    <label for="startDate">Начало:</label><input type="date" name="startDate" id="startDate" value="2023-01-01">
+    <label for="endDate">Конец:</label><input type="date" name="endDate" id="endDate" value="2024-01-01">
+    <button onclick="loadPostStat()">Загрузить</button>
+  </div>
+  <div id="table-users-top-posts" class="table-warapper"  style="height: 400px;">Загрузка...</div>
 </div>
-
-<div id="table-users-top-posts" class="table-warapper"></div>
-<div id="table-users-posts-detail" class="table-warapper"></div>
-<div id="table-dayly-posts" class="table-warapper"></div>
+<div class="card">
+  <div id="table-users-posts-detail" class="table-warapper"></div>
+</div>
+<div class="card">
+  <div id="table-dayly-posts" class="table-warapper"></div>
+</div>
 <div></div>
 <a href="http://" target="_blank" rel="noopener noreferrer"></a>
+<button onclick="document.body.classList.toggle('dark')">tema</button>

@@ -1,5 +1,5 @@
 const createTable = (data, render = {}, headerTitle = {}) => {
-    const headers = Object.keys(data[0])
+    const headers = Object.keys(data[0]).filter(key=>headerTitle[key]!==false)
     return `
       <table class="sortable">
         <thead>
@@ -65,7 +65,7 @@ async function drawChart() {
         explorer: { actions: ['dragToZoom', 'rightClickToReset'], axis: 'horizontal', maxZoomIn: 40 },
     };
 
-    var chart = new google.visualization.LineChart(document.getElementById('daily-stat-chart'));
+    window.chart = new google.visualization.LineChart(document.getElementById('daily-stat-chart'));
     // The select handler. Call the chart's getSelection() method
     function selectHandler() {
         var selectedItem = chart.getSelection()[0];
@@ -89,7 +89,7 @@ async function drawChart() {
         <a href="http://vk.com/id${uid}" target="_blank">${row.first_name} ${row.last_name}</a>
     ` }
     const dataPromise = fetch('api/usertopposts').then(x => x.json())
-    createTableAsync("table-users-top-posts", dataPromise, tableProps)
+    createTableAsync("table-users-top-posts", dataPromise, tableProps, {first_name: false, last_name:false})
 }
 
 async function fetchWords(uid) {
@@ -107,10 +107,8 @@ async function fetchPosts(uid) {
 }
 
 const mapUserTop = (data) => data.map(x=>({
-    ...x,
+    cnt:x.cnt,uid:x.uid,total_likes:x.total_likes,total_comments:x.total_comments,
     name: `${x.first_name} ${x.last_name}`,
-    first_name:undefined,
-    last_name:undefined,
     PL: (x.total_likes/x.cnt).toFixed(1),
     PC: (x.total_comments/x.cnt).toFixed(1),
     LW: Math.sqrt(x.total_likes**2+x.cnt**2).toFixed(1),
@@ -123,8 +121,8 @@ function loadPostStat() {
     const tableProps = { uid: (uid, row) => `
     <button onclick="fetchPosts(${uid})">Посты</button>
     <button onclick="fetchWords(${uid})">Слова</button>
-    <a href="http://vk.com/id${uid}" target="_blank">${row.first_name} ${row.last_name}</a>
+    <a href="http://vk.com/id${uid}" target="_blank">${row.name}</a>
 ` }
 const dataPromise = fetch(`api/usertopposts/${startDate}/${endDate}`).then(x => x.json().then(mapUserTop))
-createTableAsync("table-users-top-posts", dataPromise, tableProps)
+createTableAsync("table-users-top-posts", dataPromise, tableProps, {name: false})
 }

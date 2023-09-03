@@ -10,12 +10,17 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 
 CREATE TABLE IF NOT EXISTS comments (
-  id INTEGER PRIMARY KEY,
+  id INTEGER,
   uid INTEGER,
   pid INTEGER,
+  c INTEGER,
   l INTEGER,
+  ul INTEGER,
   d INTEGER,
-  t TEXT
+  to_c INTEGER,
+  t TEXT,
+  att TEXT,
+  PRIMARY KEY(id, pid)
 );
 
 CREATE TABLE IF NOT EXISTS likes (
