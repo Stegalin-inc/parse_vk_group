@@ -3,3 +3,4 @@
 /vk_fob.db
 */vk_fob.db
 *.db
+__pycache__/
