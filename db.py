@@ -16,7 +16,7 @@ class db:
           for i in data:
               record = []
               for field in model:
-                record.append(i[field])
+                record.append(i.get(field))
               result.append(tuple(record))
 
           return result
@@ -24,7 +24,7 @@ class db:
       c.executemany(f'REPLACE INTO {table} VALUES({",".join(["?"]*len(model))})', prepareSqlData(data))
       db.con.commit()
 
-    def readDataBySql(model: tuple, sql: str):
+    def readDataBySql(model: tuple|dict, sql: str):
        c=db.con.cursor()
        result = []
 

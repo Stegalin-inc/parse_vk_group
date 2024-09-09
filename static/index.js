@@ -51,17 +51,22 @@ const createTableAsync = async (selector, dataPromise, tableProps, headers) => {
 }
 const linkToPost = (pid, text) => `<a href="https://vk.com/wall-100407134_${pid}" target="_blank">${text || pid}</a>`
 
-google.charts.load("current", { packages: ["corechart"] });
+google.charts.load("current", { packages: ["corechart"], language: 'ru' });
 google.charts.setOnLoadCallback(drawChart);
 
 async function drawChart() {
     let fetched = await (await fetch('api/dailystat')).json()
     const D = fetched.map(x => [new Date(x.day), x.count])
     var data = google.visualization.arrayToDataTable([['X', 'Кол-во постов'], ...D]);
+    var format = new google.visualization.DateFormat({
+        pattern: 'EE dd.MM.yy'
+      });
+      format.format(data, 0);
 
     var options = {
         title: 'Количество постов по дням:',
         height: 700,
+        hAxis: { format: "dd.MM.yy" },
         explorer: { actions: ['dragToZoom', 'rightClickToReset'], axis: 'horizontal', maxZoomIn: 40 },
     };
 

@@ -4,7 +4,7 @@ import sqlite3
 from urllib import request, parse
 import json
 import time
-token_url = "https://api.vk.com/blank.html#access_token=vk1.a.4xiавпрывапiR7Ch2rxByG9B9lXR--tFTLAnV5sIVRT4wYe_oljhHnv9EO7vyG183p1okcPDsuJAs1dxfFh5UVpYmZ3ZPM1ktHMCGhVnIgI3WzMREYJ-&expires_in=86400&user_id=552926829&state=123456"
+token_url = "https://api.vk.com/blank.html#access_token=vk1.a.MidGpBCNS4r5uHUtn3P6QhTrPA6GbTfA5dQZGnME8PgHqNij3L9mgLHRudgzxRrlVO3SWyAXcyKFBupJUJof6PE7tXPJV6GrS7SsbQXdRNqG_CyQEVMeQ7CR6-CXha0ohhRAv4owB6Vsn9UsuArAY3SoVQBvqSitkG5bIuxLrtMEIefHeUtRaFB4eFpBIvBobOfGqiJdOaGN1UcYcq2LGg&expires_in=86400&user_id=552926829&state=123456"
 con = sqlite3.connect("vk_fob.db")
 def getToken():
     start = token_url.find('access_token=')+len('access_token=')
@@ -171,9 +171,9 @@ def loadAllUnloadedUsers():
   fetched = fetchUsers(users[:500])
   writeUsers(fetched)
 
-# for i in range(10):
-#     print(i)
-#     fetched = fetchPosts(i)
-#     writeToDb(fetched)
-#     time.sleep(15)
+for i in range(1, 4):
+    print(i)
+    fetched = fetchPosts(i)
+    writeToDb(fetched)
+    time.sleep(5)
 con.close()
