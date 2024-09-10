@@ -2,49 +2,12 @@ import { render } from "preact";
 import { useEffect, useMemo, useState } from "preact/hooks";
 
 const api = () => {
-  return fetch("http://localhost:8888/api/userposts/552926829", {
-    /*  mode: "no-cors",
-    method: "GET",
-    referrerPolicy: "no-referrer",
-    credentials: "omit", */
-  }).then((x) => x.json());
+  const uid = new URL(document.location.href).searchParams.get('uid') || 552926829
+  return fetch("http://localhost:3000/api/postsbyuser/" + uid).then((x) => x.json());
 };
 
-const mockData = [
-  {
-    id: 38561781,
-    uid: 561914035,
-    c: 31,
-    l: 0,
-    ul: 0,
-    d: 1717237582,
-    e: 1717237603,
-    t: "Вот он секрет счастливого брака. Порно актёр и и порно актрисса уже 12 лет в браке и чувства у них ни куда не делись, а всё потому что он ебёт других баб, а она других мужиков. Почти что секс коммунизм по Поднебесному.",
-  },
-  {
-    id: 38561782,
-    uid: 561914035,
-    c: 21,
-    l: 0,
-    ul: 0,
-    d: 1617237582,
-    e: 1717237603,
-    t: " Порно актёр и и порно актрисса уже 12 лет в браке и чувства у них ни куда не делись, а всё потому что он ебёт других баб, а она других мужиков. Почти что секс коммунизм по Поднебесному.",
-  },
-  {
-    id: 38561783,
-    uid: 561914035,
-    c: 11,
-    l: 0,
-    ul: 0,
-    d: 1517237582,
-    e: 1717237603,
-    t: ", а всё потому что он ебёт других баб, а она других мужиков. Почти что секс коммунизм по Поднебесному.",
-  },
-];
-
 const Table = () => {
-  const [data, setData] = useState(mockData);
+  const [data, setData] = useState([]);
 
   useEffect(() => {
     api().then(setData);
@@ -122,7 +85,7 @@ const Table = () => {
         {columns.map((x) => (
           <th onClick={() => onSort(x.key)} style={{ userSelect: "none" }}>
             {x.h || x.key} {x.key === sort[0] && (sort[1] ? "▲" : "▼")}
-            <input type="text" onClick={(e) => e.stopPropagation()} />
+            {/* <input type="text" onClick={(e) => e.stopPropagation()} /> */}
           </th>
         ))}
       </thead>
@@ -147,9 +110,12 @@ const Card = ({ color, text }: { color: string; text: string }) => {
     setCol(newCol);
   };
 
+  useEffect(randCol, [])
+
   return (
     <>
       <Table />
+      <button onClick={e => document.body.classList.toggle('dark')} style={{ padding: '5px 12px', margin: 12 }}>Тема</button>
       <div
         style={{ background: col, padding: 10, border: "1px solid black", cursor: "pointer" }}
         onClick={randCol}

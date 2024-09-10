@@ -1,6 +1,6 @@
 import { Database } from "bun:sqlite";
 
-const db = new Database("./vk_fob.db", { strict: true });
+const db = new Database("../vk_fob.db", { strict: true });
 
 // const q = db.query(await Bun.file('./post.sql').text())
 
@@ -10,3 +10,12 @@ export const lastPostQuery = db.query("select d from posts order by d desc limit
 export const insertPost = db.prepare(`
     INSERT INTO posts (id, uid,c,l,ul,d,e,t) VALUES ($id, $uid, $c, $l, $ul, $d, $e, $t)
 `);
+
+export default {
+    action: {
+        insertPost,
+    },
+    query: {
+        postsByUser: db.query("select * from posts where uid=$uid"),
+    }
+}
