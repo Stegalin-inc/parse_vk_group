@@ -12,13 +12,13 @@ Available commands:
   fetch sleep=15 passes=25 - fetch unloaded posts with specified sleep and passes
 ''')
 
-def fetchUnloaded(sleep = 15, passes = 25):
+def fetchUnloaded(sleep = 15, passes = "25"):
   lastDate = db.readDataBySql(('d'), 'SELECT d FROM posts ORDER BY d DESC LIMIT 1')[0]['d']
   print('lastDate: ', lastDate)
   i = 0
   while 1:
     print(i)
-    posts = api.fetchPosts(i, passes)
+    posts = api.fetchPosts(i, int(passes))
     db.writeDataToTable(posts, 'posts', tuple(post.model.keys()))
     if(posts[-1]['d'] < lastDate): break
     print('d: ', posts[-1]['d'])

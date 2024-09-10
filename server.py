@@ -106,6 +106,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             response = ('{"error": "%s"}' % str(inst)).encode()
         self.send_response(code)
         self.send_header('content-type', contentType)
+        self.send_header('Access-Control-Allow-Origin', "*")
         self.end_headers()
         self.wfile.write(response)
 

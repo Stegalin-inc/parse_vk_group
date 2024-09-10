@@ -4,3 +4,4 @@
 */vk_fob.db
 *.db
 __pycache__/
+node_modules/
