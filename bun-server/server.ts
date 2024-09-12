@@ -33,7 +33,7 @@ Bun.serve({
         status = 200;
       }
     } else if (dest === "vk") {
-      res = Bun.file("../bun-front/dist/" + controller);
+      res = Bun.file("../bun-front/docs/" + controller);
     }
     return new Response(res, {
       status,
