@@ -34,6 +34,7 @@ Bun.serve({
       }
     } else if (dest === "vk") {
       res = Bun.file("../bun-front/docs/" + controller);
+      status = 200;
     }
     return new Response(res, {
       status,
