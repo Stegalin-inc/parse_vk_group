@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "preact/hooks";
 
 const api = () => {
   const uid = new URL(document.location.href).searchParams.get("uid") || 552926829;
-  return fetch("http://188/130.251.165/api/postsbyuser/" + uid).then((x) => x.json());
+  return fetch("/api/postsbyuser/" + uid).then((x) => x.json());
 };
 
 const Table = () => {
