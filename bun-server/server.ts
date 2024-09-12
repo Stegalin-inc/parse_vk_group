@@ -19,6 +19,7 @@ const controllers: Record<string, Controller> = {
     return { ok: "ok" };
   },
   last10: () => db.query.posts.all({ limit: 10 }),
+  allpostsshort: ([limit = Number.MAX_SAFE_INTEGER - 1]) => db.query.postsShort.all({ limit }),
   topusers: ([from = 0, to = Number.MAX_SAFE_INTEGER - 1]) => db.query.topUsers.all({ from, to }),
   users: () => Object.fromEntries(db.query.names.all().map((x: any) => [x.id, x])),
 } as const;

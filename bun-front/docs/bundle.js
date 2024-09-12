@@ -461,7 +461,8 @@ var api_default = {
   postByUser: (uid) => api("postsbyuser/" + uid),
   top: (from, to) => api(["topusers", from, to].filter(Boolean).join("/")),
   users: () => api("users"),
-  last10: () => api("last10")
+  last10: () => api("last10"),
+  allpostsshort: () => api("allpostsshort")
 };
 // node_modules/preact/jsx-runtime/dist/jsxRuntime.module.js
 function u3(e3, t3, n2, o3, i3, u4) {
@@ -511,7 +512,7 @@ var Table = ({ columns, data }) => {
         }, undefined, true, undefined, this))
       }, undefined, false, undefined, this),
       /* @__PURE__ */ u3("tbody", {
-        children: sorted.map((x2) => /* @__PURE__ */ u3("tr", {
+        children: sorted.slice(0, 1000).map((x2) => /* @__PURE__ */ u3("tr", {
           children: columns.map((y3) => /* @__PURE__ */ u3("td", {
             children: y3.r ? y3.r(x2) : x2[y3.key]
           }, undefined, false, undefined, this))
@@ -551,12 +552,12 @@ var UserTable = () => {
       /* @__PURE__ */ u3("h5", {
         children: [
           "\u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E \u043F\u043E\u0441\u0442\u043E\u0432: ",
-          last10.length
+          data.length
         ]
       }, undefined, true, undefined, this),
       /* @__PURE__ */ u3(Table, {
         columns,
-        data: last10
+        data
       }, undefined, false, undefined, this),
       ";"
     ]
@@ -630,23 +631,107 @@ var TopUsersTable = () => {
   }, undefined, false, undefined, this);
 };
 
+// pages/all-posts-table.tsx
+var PAGE_COUNT = 1000;
+var AllPostsTable = () => {
+  const allposts = useFetched(api_default.allpostsshort, []);
+  const users = useFetched(api_default.users, {});
+  const [page, setPage] = h2(0);
+  const tabCnt = allposts.length / PAGE_COUNT | 0;
+  const columns2 = [
+    {
+      key: "id",
+      h: "ID",
+      r: (row) => /* @__PURE__ */ u3("a", {
+        href: `https://vk.com/wall-100407134_${row.id}`,
+        target: "_blank",
+        children: row.id
+      }, undefined, false, undefined, this)
+    },
+    {
+      key: "uid",
+      h: "\uD83D\uDE4D\u200D\u2642\uFE0F",
+      r: (row) => /* @__PURE__ */ u3("a", {
+        href: `https://vk.com/id${row.uid}`,
+        target: "_blank",
+        children: [
+          users[row.uid]?.first_name,
+          " ",
+          users[row.uid]?.last_name
+        ]
+      }, undefined, true, undefined, this)
+    },
+    {
+      key: "c",
+      h: "\uD83D\uDCDD"
+    },
+    {
+      key: "l",
+      h: "\u2764"
+    },
+    {
+      key: "d",
+      h: "\uD83D\uDCC6",
+      r: (row) => new Date(row.d * 1000).toLocaleString()
+    },
+    {
+      key: "e",
+      h: "\uD83D\uDCC6\u270F"
+    }
+  ];
+  return /* @__PURE__ */ u3(k, {
+    children: [
+      /* @__PURE__ */ u3("h5", {
+        children: [
+          "\u0412\u0441\u0435\u0433\u043E \u043F\u043E\u0441\u0442\u043E\u0432: ",
+          allposts.length
+        ]
+      }, undefined, true, undefined, this),
+      /* @__PURE__ */ u3(Table, {
+        columns: columns2,
+        data: allposts
+      }, undefined, false, undefined, this),
+      ";"
+    ]
+  }, undefined, true, undefined, this);
+};
+
 // root.tsx
 var Card = ({ color, text }) => {
   const [col, setCol] = h2(color);
+  const [tab, setTab] = h2(0);
   const randCol = () => {
     const newCol = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
     setCol(newCol);
   };
   y2(randCol, []);
+  const tabs = [UserTable, TopUsersTable, AllPostsTable];
+  const CurrentComponent = tabs[tab];
   return /* @__PURE__ */ u3(k, {
     children: [
       /* @__PURE__ */ u3("div", {
-        style: { height: 500, overflow: "auto" },
-        children: /* @__PURE__ */ u3(UserTable, {}, undefined, false, undefined, this)
-      }, undefined, false, undefined, this),
+        class: "toolbar",
+        children: [
+          /* @__PURE__ */ u3("button", {
+            class: tab == 0 ? "selected" : "",
+            onClick: () => setTab(0),
+            children: "\u041F\u043E \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E"
+          }, undefined, false, undefined, this),
+          /* @__PURE__ */ u3("button", {
+            class: tab == 1 ? "selected" : "",
+            onClick: () => setTab(1),
+            children: "\u0422\u043E\u043F \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u0435\u0439"
+          }, undefined, false, undefined, this),
+          /* @__PURE__ */ u3("button", {
+            class: tab == 2 ? "selected" : "",
+            onClick: () => setTab(2),
+            children: "\u0412\u0441\u0435 \u043F\u043E\u0441\u0442\u044B"
+          }, undefined, false, undefined, this)
+        ]
+      }, undefined, true, undefined, this),
       /* @__PURE__ */ u3("div", {
         style: { height: 500, overflow: "auto" },
-        children: /* @__PURE__ */ u3(TopUsersTable, {}, undefined, false, undefined, this)
+        children: /* @__PURE__ */ u3(CurrentComponent, {}, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       /* @__PURE__ */ u3("button", {
         onClick: (e3) => document.body.classList.toggle("dark"),

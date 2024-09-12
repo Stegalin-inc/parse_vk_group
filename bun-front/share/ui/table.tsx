@@ -43,7 +43,7 @@ export const Table = ({ columns, data }: Props) => {
         ))}
       </thead>
       <tbody>
-        {sorted.map((x) => (
+        {sorted.slice(0, 1000).map((x) => (
           <tr>
             {columns.map((y) => (
               <td>{y.r ? y.r(x) : x[y.key]}</td>

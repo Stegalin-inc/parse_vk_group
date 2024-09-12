@@ -142,3 +142,8 @@ button {
     cursor: pointer;
     transition-duration: 300ms;
 }
+
+button.selected {
+    background-color: var(--accent-dark-color);
+
+}

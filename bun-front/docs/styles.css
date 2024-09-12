@@ -142,3 +142,15 @@ button {
     cursor: pointer;
     transition-duration: 300ms;
 }
+
+
+button.selected {
+    border: 2px solid var(--accent-dark-color);
+}
+
+.toolbar {
+    display: flex;
+    padding: 15px 30px;
+    gap: 15px;
+    border-bottom: 1px solid var(--accent-dark-color);
+}
