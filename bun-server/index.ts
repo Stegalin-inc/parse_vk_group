@@ -1,17 +1,12 @@
-import api from './api';
-import { insertPost, lastPostQuery } from './db';
+import api from "./api";
+import { insertPost, lastPostQuery } from "./db";
 
-
-
-const me = await api.posts(0, 1, 1)
+const me = await api.posts(0, 1, 1);
 if (!me.err) {
-    console.log(me.res)
+  console.log(me.res);
 } else {
-    console.log(me.err);
-    
+  console.log(me.err);
 }
-
-
 
 /* const db = new Database('./vk_fob.db')
 

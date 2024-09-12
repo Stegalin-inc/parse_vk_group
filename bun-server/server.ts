@@ -11,12 +11,16 @@ const controllers: Record<string, Controller> = {
     return { ok: "ok" };
   },
   loadpage: async ([stage, pass, count]) => {
+    // @ts-ignore
     const posts = await api.posts(stage, pass, count);
     if (posts.err) return posts;
     posts.res.forEach((post) => db.action.insertPost.run(post));
 
     return { ok: "ok" };
   },
+  last10: () => db.query.posts.all({ limit: 10 }),
+  topusers: ([from = 0, to = Number.MAX_SAFE_INTEGER - 1]) => db.query.topUsers.all({ from, to }),
+  users: () => Object.fromEntries(db.query.names.all().map((x: any) => [x.id, x])),
 } as const;
 
 Bun.serve({
@@ -25,15 +29,15 @@ Bun.serve({
     const [_, dest, controller, ...paths] = url.pathname.split("/");
     const params: any = {};
     for (let [k, v] of url.searchParams.entries()) params[k] = v;
-    let res = "not found",
-      status = 404;
+    let res: BodyInit = "not found";
+    let status = 404;
     if (dest === "api") {
       if (controller in controllers) {
         res = JSON.stringify(await controllers[controller](paths, params));
         status = 200;
       }
     } else if (dest === "vk") {
-      res = Bun.file("../bun-front/docs/" + controller);
+      res = Bun.file("../bun-front/docs/" + (controller || "index.html"));
       status = 200;
     }
     return new Response(res, {

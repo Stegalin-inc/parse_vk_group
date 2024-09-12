@@ -471,7 +471,7 @@ var i3 = Array.isArray;
 // root.tsx
 var api = () => {
   const uid = new URL(document.location.href).searchParams.get("uid") || 552926829;
-  return fetch("http://188/130.251.165/api/postsbyuser/" + uid).then((x2) => x2.json());
+  return fetch("/api/postsbyuser/" + uid).then((x2) => x2.json());
 };
 var Table = () => {
   const [data, setData] = h2([]);
