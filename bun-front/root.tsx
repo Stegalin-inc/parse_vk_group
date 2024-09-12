@@ -2,8 +2,8 @@ import { render } from "preact";
 import { useEffect, useMemo, useState } from "preact/hooks";
 
 const api = () => {
-  const uid = new URL(document.location.href).searchParams.get('uid') || 552926829
-  return fetch("http://localhost:3000/api/postsbyuser/" + uid).then((x) => x.json());
+  const uid = new URL(document.location.href).searchParams.get("uid") || 552926829;
+  return fetch("http://188/130.251.165/api/postsbyuser/" + uid).then((x) => x.json());
 };
 
 const Table = () => {
@@ -110,12 +110,17 @@ const Card = ({ color, text }: { color: string; text: string }) => {
     setCol(newCol);
   };
 
-  useEffect(randCol, [])
+  useEffect(randCol, []);
 
   return (
     <>
       <Table />
-      <button onClick={e => document.body.classList.toggle('dark')} style={{ padding: '5px 12px', margin: 12 }}>Тема</button>
+      <button
+        onClick={(e) => document.body.classList.toggle("dark")}
+        style={{ padding: "5px 12px", margin: 12 }}
+      >
+        Тема
+      </button>
       <div
         style={{ background: col, padding: 10, border: "1px solid black", cursor: "pointer" }}
         onClick={randCol}
