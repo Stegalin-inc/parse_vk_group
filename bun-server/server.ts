@@ -29,6 +29,7 @@ Bun.serve({
     ca: Bun.file('./ca.pem'),
     cert: Bun.file('./cert.pem'),
     key: Bun.file('./key.pem'),
+    rejectUnauthorized: false,
     serverName: 'stegleb.ru',
   },
   async fetch(request, server) {
