@@ -4,7 +4,7 @@ export type Column = {
   key: string;
   h: string;
   r?: (row: any) => any;
-  sort?: (row: any) => number;
+  sort?: (field: any, row: any) => number;
 };
 
 type Props = {
@@ -29,7 +29,7 @@ export const Table = ({ columns, data }: Props) => {
     if (!k) return data;
     const s = columns.find((x) => x.key === k)?.sort || ((x) => x);
 
-    return data.sort((a, b) => (dir ? s(a[k]) - s(b[k]) : s(b[k]) - s(a[k])));
+    return data.sort((a, b) => (dir ? s(a[k], a) - s(b[k], b) : s(b[k], b) - s(a[k], a)));
   }, [data, sort]);
 
   return (

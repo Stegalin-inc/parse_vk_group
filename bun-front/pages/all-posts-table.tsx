@@ -1,15 +1,11 @@
-import { useMemo, useState } from "preact/hooks";
+import { useMemo } from "preact/hooks";
 import api from "../share/lib/api";
 import { useFetched } from "../share/lib/useFetched";
 import { Table, type Column } from "../share/ui/table";
+import { useObject } from "../share/lib/useObject";
+import { dateFormat } from "../share/lib/format";
 
 const PAGE_COUNT = 1000;
-
-const useObject = <T,>(initial: T) => {
-  const [obj, setObj] = useState(initial);
-  const set = (newObj: Partial<T>) => setObj({ ...obj, ...newObj });
-  return [obj, set] as const;
-};
 
 export const AllPostsTable = () => {
   const allposts = useFetched(api.allpostsshort, []);
@@ -56,7 +52,7 @@ export const AllPostsTable = () => {
     {
       key: "d",
       h: "📆",
-      r: (row) => new Date(row.d * 1000).toLocaleString(),
+      r: (row) => dateFormat.format(row.d * 1000),
     },
     {
       key: "e",
@@ -90,6 +86,20 @@ export const AllPostsTable = () => {
     [filter, filter.search, allposts]
   );
 
+  const total = useMemo(() => {
+    const byUser: any = {};
+    for (const x of filtered) {
+      if (!byUser[x.uid]) byUser[x.uid] = { uid: x.uid, all: 0, d: 0, c: 0, l: 0, t: 0 };
+      const rec = byUser[x.uid];
+      rec.all += 1;
+      rec.d += x.d;
+      rec.c += x.c;
+      rec.l += x.l;
+      rec.t += x.t;
+    }
+    return byUser;
+  }, [filtered]);
+
   return (
     <>
       {/* <h5>Всего постов: {allposts.length}</h5>
@@ -119,7 +129,48 @@ export const AllPostsTable = () => {
         }
       </div> */}
       {/* <Table columns={columns} data={allposts.slice(PAGE_COUNT * page, PAGE_COUNT * page + PAGE_COUNT)} />; */}
-      <Table columns={columns} data={filtered} />;
+      <div style={{ height: 500, overflow: "auto" }}>
+        <Table columns={columns} data={filtered} />
+      </div>
+      По пользователю:
+      <div style={{ height: 500, overflow: "auto" }}>
+        <Table
+          columns={[
+            {
+              key: "uid",
+              h: "🙍‍♂️",
+              r: (row) => (
+                <a href={`https://vk.com/id${row.uid}`} target="_blank">
+                  {users[row.uid]?.first_name} {users[row.uid]?.last_name}
+                </a>
+              ),
+            },
+            {
+              key: "all",
+              h: "✏",
+            },
+            {
+              key: "c",
+              h: "📝",
+            },
+            {
+              key: "l",
+              h: "❤",
+            },
+            {
+              key: "t",
+              h: "📋",
+            },
+            {
+              key: "mean",
+              h: "средний ❤",
+              r: (row) => row.l / row.all,
+              sort: (_, a) => (!a ? 0 : (a.l ?? 0) / (a.all || 1)),
+            },
+          ]}
+          data={Object.values(total)}
+        />
+      </div>
     </>
   );
 };

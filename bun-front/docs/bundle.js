@@ -496,7 +496,7 @@ var Table = ({ columns, data }) => {
     if (!k3)
       return data;
     const s3 = columns.find((x2) => x2.key === k3)?.sort || ((x2) => x2);
-    return data.sort((a3, b2) => dir ? s3(a3[k3]) - s3(b2[k3]) : s3(b2[k3]) - s3(a3[k3]));
+    return data.sort((a3, b2) => dir ? s3(a3[k3], a3) - s3(b2[k3], b2) : s3(b2[k3], b2) - s3(a3[k3], a3));
   }, [data, sort]);
   return /* @__PURE__ */ u3("table", {
     children: [
@@ -631,13 +631,15 @@ var TopUsersTable = () => {
   }, undefined, false, undefined, this);
 };
 
-// pages/all-posts-table.tsx
-var PAGE_COUNT = 1000;
+// share/lib/useObject.tsx
 var useObject = (initial) => {
   const [obj, setObj] = h2(initial);
   const set = (newObj) => setObj({ ...obj, ...newObj });
   return [obj, set];
 };
+
+// pages/all-posts-table.tsx
+var PAGE_COUNT = 1000;
 var AllPostsTable = () => {
   const allposts = useFetched(api_default.allpostsshort, []);
   const users = useFetched(api_default.users, {});
@@ -704,6 +706,20 @@ var AllPostsTable = () => {
     }
     return true;
   }), [filter, filter.search, allposts]);
+  const total = T2(() => {
+    const byUser = {};
+    for (const x2 of filtered) {
+      if (!byUser[x2.uid])
+        byUser[x2.uid] = { uid: x2.uid, all: 0, d: 0, c: 0, l: 0, t: 0 };
+      const rec = byUser[x2.uid];
+      rec.all += 1;
+      rec.d += x2.d;
+      rec.c += x2.c;
+      rec.l += x2.l;
+      rec.t += x2.t;
+    }
+    return byUser;
+  }, [filtered]);
   return /* @__PURE__ */ u3(k, {
     children: [
       /* @__PURE__ */ u3("div", {
@@ -731,11 +747,57 @@ var AllPostsTable = () => {
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this),
-      /* @__PURE__ */ u3(Table, {
-        columns: columns2,
-        data: filtered
+      /* @__PURE__ */ u3("div", {
+        style: { height: 500, overflow: "auto" },
+        children: /* @__PURE__ */ u3(Table, {
+          columns: columns2,
+          data: filtered
+        }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
-      ";"
+      "\u041F\u043E \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E:",
+      /* @__PURE__ */ u3("div", {
+        style: { height: 500, overflow: "auto" },
+        children: /* @__PURE__ */ u3(Table, {
+          columns: [
+            {
+              key: "uid",
+              h: "\uD83D\uDE4D\u200D\u2642\uFE0F",
+              r: (row) => /* @__PURE__ */ u3("a", {
+                href: `https://vk.com/id${row.uid}`,
+                target: "_blank",
+                children: [
+                  users[row.uid]?.first_name,
+                  " ",
+                  users[row.uid]?.last_name
+                ]
+              }, undefined, true, undefined, this)
+            },
+            {
+              key: "all",
+              h: "\u270F"
+            },
+            {
+              key: "c",
+              h: "\uD83D\uDCDD"
+            },
+            {
+              key: "l",
+              h: "\u2764"
+            },
+            {
+              key: "t",
+              h: "\uD83D\uDCCB"
+            },
+            {
+              key: "mean",
+              h: "\u0441\u0440\u0435\u0434\u043D\u0438\u0439 \u2764",
+              r: (row) => row.l / row.all,
+              sort: (_2, a3) => !a3 ? 0 : (a3.l ?? 0) / (a3.all || 1)
+            }
+          ],
+          data: Object.values(total)
+        }, undefined, false, undefined, this)
+      }, undefined, false, undefined, this)
     ]
   }, undefined, true, undefined, this);
 };
