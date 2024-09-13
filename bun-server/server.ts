@@ -25,6 +25,12 @@ const controllers: Record<string, Controller> = {
 } as const;
 
 Bun.serve({
+  tls: {
+    ca: Bun.file('./ca.pem'),
+    cert: Bun.file('./cert.pem'),
+    key: Bun.file('./key.pem'),
+    serverName: 'stegleb.ru',
+  },
   async fetch(request, server) {
     const url = new URL(request.url);
     const [_, dest, controller, ...paths] = url.pathname.split("/");
