@@ -1,5 +1,5 @@
-const api = (url: string) => {
-  return fetch("/api/" + url).then((x) => x.json());
+const api = <T = any>(url: string) => {
+  return fetch("/api/" + url).then((x) => x.json() as Promise<T>);
 };
 
 export default {
@@ -7,5 +7,5 @@ export default {
   top: (from?: number, to?: number) => api(["topusers", from, to].filter(Boolean).join("/")),
   users: () => api("users"),
   last10: () => api("last10"),
-  allpostsshort: () => api("allpostsshort"),
+  allpostsshort: () => api<{ uid: number; d: number }[]>("allpostsshort"),
 };

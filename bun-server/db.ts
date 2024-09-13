@@ -18,7 +18,7 @@ export default {
   query: {
     postsByUser: db.query("select * from posts where uid=$uid"),
     posts: db.query("select * from posts order by d desc limit $limit"),
-    postsShort: db.query("select id, uid, c, l, ul, d, e from posts limit $limit"),
+    postsShort: db.query("select id, uid, c, l, ul, d, e, length(t) as t from posts limit $limit"),
     names: db.query("select * from users"),
     topUsers: db.query(
       "SELECT uid, count(*) as count FROM posts WHERE d BETWEEN $from AND $to GROUP BY uid ORDER BY c DESC"

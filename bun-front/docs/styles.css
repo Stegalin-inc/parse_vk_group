@@ -24,6 +24,17 @@ body.dark {
     --shadow-color: #ffffff36
 }
 
+body.xuesos {
+    --card-color: #2463ff;
+    --top-bar-color: #2f6cff;
+    --background-color: #e1eaff;
+    --delineter-color: #393f4f;
+    --accent-light-color: #1741a9;
+    --accent-dark-color: #7baaff;
+    --text-color: rgb(8 29 56);
+    --shadow-color: #ffffff36;
+}
+
 * {
     font-size: 11px;
 }
@@ -33,6 +44,7 @@ body.dark {
         font-size: xx-large;
     }
 }
+
 .dark a:link {
     color: var(--accent-dark-color);
 }
@@ -57,7 +69,7 @@ tr {
 }
 
 td {
-    padding: 5px 2px;
+    padding: 5px 15px;
 }
 
 td button {
@@ -74,6 +86,7 @@ th {
     background-color: var(--top-bar-color);
     cursor: pointer;
 }
+
 th:hover {
     background-color: var(--card-color);
 }
@@ -153,4 +166,12 @@ button.selected {
     padding: 15px 30px;
     gap: 15px;
     border-bottom: 1px solid var(--accent-dark-color);
+    align-items: center;
+}
+
+input {
+    background-color: var(--accent-light-color);
+    border: 1px solid var(--accent-dark-color);
+    color: var(--text-color);
+    padding: 10px;
 }

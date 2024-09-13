@@ -453,7 +453,7 @@ c2.__b = function(n2) {
 };
 var k2 = typeof requestAnimationFrame == "function";
 
-// share/lib/api.tsx
+// share/lib/api.ts
 var api = (url) => {
   return fetch("/api/" + url).then((x2) => x2.json());
 };
@@ -633,10 +633,19 @@ var TopUsersTable = () => {
 
 // pages/all-posts-table.tsx
 var PAGE_COUNT = 1000;
+var useObject = (initial) => {
+  const [obj, setObj] = h2(initial);
+  const set = (newObj) => setObj({ ...obj, ...newObj });
+  return [obj, set];
+};
 var AllPostsTable = () => {
   const allposts = useFetched(api_default.allpostsshort, []);
   const users = useFetched(api_default.users, {});
-  const [page, setPage] = h2(0);
+  const [filter, setFilter] = useObject({
+    from: "",
+    to: "",
+    search: ""
+  });
   const tabCnt = allposts.length / PAGE_COUNT | 0;
   const columns2 = [
     {
@@ -677,19 +686,54 @@ var AllPostsTable = () => {
     {
       key: "e",
       h: "\uD83D\uDCC6\u270F"
+    },
+    {
+      key: "t",
+      h: "\uD83D\uDCCB"
     }
   ];
+  const filtered = T2(() => allposts.filter((x2) => {
+    if (filter.from && x2.d < new Date(filter.from).getTime() / 1000)
+      return false;
+    if (filter.to && x2.d > new Date(filter.to).getTime() / 1000)
+      return false;
+    if (filter.search) {
+      const name = users[x2.uid]?.first_name + " " + users[x2.uid]?.last_name;
+      if (!x2.uid?.toString().includes(filter.search) && !name.toLowerCase().includes(filter.search))
+        return false;
+    }
+    return true;
+  }), [filter, filter.search, allposts]);
   return /* @__PURE__ */ u3(k, {
     children: [
-      /* @__PURE__ */ u3("h5", {
+      /* @__PURE__ */ u3("div", {
+        className: "toolbar",
         children: [
-          "\u0412\u0441\u0435\u0433\u043E \u043F\u043E\u0441\u0442\u043E\u0432: ",
-          allposts.length
+          "\u0432\u0441\u0435\u0433\u043E: ",
+          allposts.length,
+          " \u0444\u0438\u043B\u044C\u0442\u0440: ",
+          filtered.length,
+          /* @__PURE__ */ u3("input", {
+            type: "date",
+            value: filter.from,
+            onInput: (e3) => setFilter({ from: e3.currentTarget.value })
+          }, undefined, false, undefined, this),
+          /* @__PURE__ */ u3("input", {
+            type: "date",
+            value: filter.to,
+            onInput: (e3) => setFilter({ to: e3.currentTarget.value })
+          }, undefined, false, undefined, this),
+          /* @__PURE__ */ u3("input", {
+            type: "text",
+            value: filter.search,
+            onChange: (e3) => setFilter({ search: e3.currentTarget.value }),
+            placeholder: "\u041F\u043E\u0438\u0441\u043A"
+          }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this),
       /* @__PURE__ */ u3(Table, {
         columns: columns2,
-        data: allposts
+        data: filtered
       }, undefined, false, undefined, this),
       ";"
     ]
