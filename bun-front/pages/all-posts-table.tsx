@@ -127,7 +127,7 @@ export const AllPostsTable = () => {
         }
       </div> */}
       {/* <Table columns={columns} data={allposts.slice(PAGE_COUNT * page, PAGE_COUNT * page + PAGE_COUNT)} />; */}
-      <div style={{ display: 'grid', overflow: 'auto' }}>
+      <div style={{ display: 'grid', overflow: 'auto', maxHeight: '70vh' }}>
         <Table columns={columns} data={filtered} />
       По пользователю:
         <Table

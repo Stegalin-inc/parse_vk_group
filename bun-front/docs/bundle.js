@@ -757,7 +757,7 @@ var AllPostsTable = () => {
         ]
       }, undefined, true, undefined, this),
       /* @__PURE__ */ u3("div", {
-        style: { display: "grid", overflow: "auto" },
+        style: { display: "grid", overflow: "auto", maxHeight: "70vh" },
         children: [
           /* @__PURE__ */ u3(Table, {
             columns: columns2,
@@ -813,7 +813,7 @@ var AllPostsTable = () => {
 // root.tsx
 var Card = ({ color, text }) => {
   const [col, setCol] = h2(color);
-  const [tab, setTab] = h2(2);
+  const [tab, setTab] = h2(0);
   const randCol = () => {
     const newCol = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
     setCol(newCol);
