@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo } from "preact/hooks";
+import { useContext, useEffect, useMemo, useState } from "preact/hooks";
 import api from "../share/lib/api";
 import { useFetched } from "../share/lib/useFetched";
 import { Table, type Column } from "../share/ui/table";
@@ -13,6 +13,7 @@ export const AllPostsTable = () => {
   const allposts = useFetched(api.allpostsshort, []);
   const setMsg = useContext(MessageContext)
   const users = useFetched(api.users, {});
+  const [tab, setTab] = useState(0)
   const [filter, setFilter] = useObject({
     from: "",
     to: "",
@@ -20,7 +21,7 @@ export const AllPostsTable = () => {
   });
 
   useEffect(() => {
-    setMsg?.(allposts.length?'':<><Loader/> Загруз очка...</>)
+    setMsg?.(allposts.length ? '' : <><Loader /> Загруз очка...</>)
   }, [allposts])
 
   const tabCnt = (allposts.length / PAGE_COUNT) | 0;
@@ -81,7 +82,7 @@ export const AllPostsTable = () => {
           const name = users[x.uid]?.first_name + " " + users[x.uid]?.last_name;
           if (
             !x.uid?.toString().includes(filter.search) &&
-            !name.toLowerCase().includes(filter.search)
+            !name.toLowerCase().includes(filter.search.toLowerCase())
           )
             return false;
         }
@@ -107,6 +108,39 @@ export const AllPostsTable = () => {
     return byUser;
   }, [filtered]);
 
+  const totalColumns: Column[] = [
+    {
+      key: "uid",
+      h: "🙍‍♂️",
+      r: (row) => (
+        <a href={`https://vk.com/id${row.uid}`} target="_blank">
+          {users[row.uid]?.first_name} {users[row.uid]?.last_name}
+        </a>
+      ),
+    },
+    {
+      key: "all",
+      h: "✏",
+    },
+    {
+      key: "c",
+      h: "📝",
+    },
+    {
+      key: "l",
+      h: "❤",
+    },
+    {
+      key: "t",
+      h: "📋",
+    },
+    {
+      key: "mean",
+      h: "средний ❤",
+      r: (row) => row.l / row.all,
+      sort: (_, a) => (!a ? 0 : (a.l ?? 0) / (a.all || 1)),
+    },
+  ];
   return (
     <>
       <div className="toolbar">
@@ -128,51 +162,16 @@ export const AllPostsTable = () => {
           placeholder="Поиск"
         />
       </div>
-      {/* <div className="toolbar">
-        {
-          Array(tabCnt).fill(0).map((x, i) => <button class={i === page ? 'selected' : ''} onClick={() => setPage(i)}>{i}</button>)
-        }
-      </div> */}
-      {/* <Table columns={columns} data={allposts.slice(PAGE_COUNT * page, PAGE_COUNT * page + PAGE_COUNT)} />; */}
-      <div /* style={{ display: 'grid', overflow: 'auto', maxHeight: '70vh' }} */>
-        <Table columns={columns} data={filtered} />
-        По пользователю:
-        <Table
-          columns={[
-            {
-              key: "uid",
-              h: "🙍‍♂️",
-              r: (row) => (
-                <a href={`https://vk.com/id${row.uid}`} target="_blank">
-                  {users[row.uid]?.first_name} {users[row.uid]?.last_name}
-                </a>
-              ),
-            },
-            {
-              key: "all",
-              h: "✏",
-            },
-            {
-              key: "c",
-              h: "📝",
-            },
-            {
-              key: "l",
-              h: "❤",
-            },
-            {
-              key: "t",
-              h: "📋",
-            },
-            {
-              key: "mean",
-              h: "средний ❤",
-              r: (row) => row.l / row.all,
-              sort: (_, a) => (!a ? 0 : (a.l ?? 0) / (a.all || 1)),
-            },
-          ]}
+      <div class="toolbar">
+        <button class={tab == 0 ? 'selected' : ''} onClick={e => setTab(0)}>Все</button>
+        <button class={tab == 1 ? 'selected' : ''} onClick={e => setTab(1)}>По пользователю</button>
+      </div>
+      <div style={{ display: 'grid', overflowY: 'auto', maxHeight: '100vh' }}>
+        {tab == 0 && <Table columns={columns} data={filtered} />}
+        {tab == 1 && <Table
+          columns={totalColumns}
           data={Object.values(total)}
-        />
+        />}
       </div>
     </>
   );

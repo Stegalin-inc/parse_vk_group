@@ -8,7 +8,7 @@ import { MessageContext } from "./messageContext";
 const Card = ({ color, text }: { color: string; text: string }) => {
   const [col, setCol] = useState(color);
 
-  const [tab, setTab] = useState(0)
+  const [tab, setTab] = useState(2)
   
   const [msg, setMsg] = useState<ComponentChild>('')
 
@@ -28,8 +28,8 @@ const Card = ({ color, text }: { color: string; text: string }) => {
     <MessageContext.Provider value={msg=>setMsg(msg)}>
       {msg}
       <div class="toolbar">
-        <button class={tab == 0 ? 'selected' : ''} onClick={() => setTab(0)}>По пользователю</button>
-        <button class={tab == 1 ? 'selected' : ''} onClick={() => setTab(1)}>Топ пользователей</button>
+        {/* <button class={tab == 0 ? 'selected' : ''} onClick={() => setTab(0)}>По пользователю</button>
+        <button class={tab == 1 ? 'selected' : ''} onClick={() => setTab(1)}>Топ пользователей</button> */}
         <button class={tab == 2 ? 'selected' : ''} onClick={() => setTab(2)}>Все посты</button>
         <div style={{ flex: 1 }}></div>
         <button

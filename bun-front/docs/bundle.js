@@ -711,6 +711,7 @@ var AllPostsTable = () => {
   const allposts = useFetched(api_default.allpostsshort, []);
   const setMsg = x2(MessageContext);
   const users = useFetched(api_default.users, {});
+  const [tab, setTab] = h2(0);
   const [filter, setFilter] = useObject({
     from: "",
     to: "",
@@ -777,7 +778,7 @@ var AllPostsTable = () => {
       return false;
     if (filter.search) {
       const name = users[x3.uid]?.first_name + " " + users[x3.uid]?.last_name;
-      if (!x3.uid?.toString().includes(filter.search) && !name.toLowerCase().includes(filter.search))
+      if (!x3.uid?.toString().includes(filter.search) && !name.toLowerCase().includes(filter.search.toLowerCase()))
         return false;
     }
     return true;
@@ -796,6 +797,43 @@ var AllPostsTable = () => {
     }
     return byUser;
   }, [filtered]);
+  const totalColumns = [
+    {
+      key: "uid",
+      h: "\uD83D\uDE4D\u200D\u2642\uFE0F",
+      r: (row) => /* @__PURE__ */ u3("a", {
+        href: `https://vk.com/id${row.uid}`,
+        target: "_blank",
+        children: [
+          users[row.uid]?.first_name,
+          " ",
+          users[row.uid]?.last_name
+        ]
+      }, undefined, true, undefined, this)
+    },
+    {
+      key: "all",
+      h: "\u270F"
+    },
+    {
+      key: "c",
+      h: "\uD83D\uDCDD"
+    },
+    {
+      key: "l",
+      h: "\u2764"
+    },
+    {
+      key: "t",
+      h: "\uD83D\uDCCB"
+    },
+    {
+      key: "mean",
+      h: "\u0441\u0440\u0435\u0434\u043D\u0438\u0439 \u2764",
+      r: (row) => row.l / row.all,
+      sort: (_2, a3) => !a3 ? 0 : (a3.l ?? 0) / (a3.all || 1)
+    }
+  ];
   return /* @__PURE__ */ u3(k, {
     children: [
       /* @__PURE__ */ u3("div", {
@@ -824,50 +862,29 @@ var AllPostsTable = () => {
         ]
       }, undefined, true, undefined, this),
       /* @__PURE__ */ u3("div", {
+        class: "toolbar",
         children: [
-          /* @__PURE__ */ u3(Table, {
+          /* @__PURE__ */ u3("button", {
+            class: tab == 0 ? "selected" : "",
+            onClick: (e3) => setTab(0),
+            children: "\u0412\u0441\u0435"
+          }, undefined, false, undefined, this),
+          /* @__PURE__ */ u3("button", {
+            class: tab == 1 ? "selected" : "",
+            onClick: (e3) => setTab(1),
+            children: "\u041F\u043E \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E"
+          }, undefined, false, undefined, this)
+        ]
+      }, undefined, true, undefined, this),
+      /* @__PURE__ */ u3("div", {
+        style: { display: "grid", overflowY: "auto", maxHeight: "100vh" },
+        children: [
+          tab == 0 && /* @__PURE__ */ u3(Table, {
             columns: columns2,
             data: filtered
           }, undefined, false, undefined, this),
-          "\u041F\u043E \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E:",
-          /* @__PURE__ */ u3(Table, {
-            columns: [
-              {
-                key: "uid",
-                h: "\uD83D\uDE4D\u200D\u2642\uFE0F",
-                r: (row) => /* @__PURE__ */ u3("a", {
-                  href: `https://vk.com/id${row.uid}`,
-                  target: "_blank",
-                  children: [
-                    users[row.uid]?.first_name,
-                    " ",
-                    users[row.uid]?.last_name
-                  ]
-                }, undefined, true, undefined, this)
-              },
-              {
-                key: "all",
-                h: "\u270F"
-              },
-              {
-                key: "c",
-                h: "\uD83D\uDCDD"
-              },
-              {
-                key: "l",
-                h: "\u2764"
-              },
-              {
-                key: "t",
-                h: "\uD83D\uDCCB"
-              },
-              {
-                key: "mean",
-                h: "\u0441\u0440\u0435\u0434\u043D\u0438\u0439 \u2764",
-                r: (row) => row.l / row.all,
-                sort: (_2, a3) => !a3 ? 0 : (a3.l ?? 0) / (a3.all || 1)
-              }
-            ],
+          tab == 1 && /* @__PURE__ */ u3(Table, {
+            columns: totalColumns,
             data: Object.values(total)
           }, undefined, false, undefined, this)
         ]
@@ -879,7 +896,7 @@ var AllPostsTable = () => {
 // root.tsx
 var Card = ({ color, text }) => {
   const [col, setCol] = h2(color);
-  const [tab, setTab] = h2(0);
+  const [tab, setTab] = h2(2);
   const [msg, setMsg] = h2("");
   const randCol = () => {
     const newCol = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
@@ -895,16 +912,6 @@ var Card = ({ color, text }) => {
       /* @__PURE__ */ u3("div", {
         class: "toolbar",
         children: [
-          /* @__PURE__ */ u3("button", {
-            class: tab == 0 ? "selected" : "",
-            onClick: () => setTab(0),
-            children: "\u041F\u043E \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E"
-          }, undefined, false, undefined, this),
-          /* @__PURE__ */ u3("button", {
-            class: tab == 1 ? "selected" : "",
-            onClick: () => setTab(1),
-            children: "\u0422\u043E\u043F \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u0435\u0439"
-          }, undefined, false, undefined, this),
           /* @__PURE__ */ u3("button", {
             class: tab == 2 ? "selected" : "",
             onClick: () => setTab(2),
