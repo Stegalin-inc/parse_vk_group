@@ -1,20 +1,27 @@
-import { useMemo } from "preact/hooks";
+import { useContext, useEffect, useMemo } from "preact/hooks";
 import api from "../share/lib/api";
 import { useFetched } from "../share/lib/useFetched";
 import { Table, type Column } from "../share/ui/table";
+import { Loader } from "../share/ui/loader";
 import { useObject } from "../share/lib/useObject";
 import { dateFormat } from "../share/lib/format";
+import { MessageContext } from "../messageContext";
 
 const PAGE_COUNT = 1000;
 
 export const AllPostsTable = () => {
   const allposts = useFetched(api.allpostsshort, []);
+  const setMsg = useContext(MessageContext)
   const users = useFetched(api.users, {});
   const [filter, setFilter] = useObject({
     from: "",
     to: "",
     search: "",
   });
+
+  useEffect(() => {
+    setMsg?.(allposts.length?'':<><Loader/> Загруз очка...</>)
+  }, [allposts])
 
   const tabCnt = (allposts.length / PAGE_COUNT) | 0;
 
@@ -127,9 +134,9 @@ export const AllPostsTable = () => {
         }
       </div> */}
       {/* <Table columns={columns} data={allposts.slice(PAGE_COUNT * page, PAGE_COUNT * page + PAGE_COUNT)} />; */}
-      <div style={{ display: 'grid', overflow: 'auto', maxHeight: '70vh' }}>
+      <div /* style={{ display: 'grid', overflow: 'auto', maxHeight: '70vh' }} */>
         <Table columns={columns} data={filtered} />
-      По пользователю:
+        По пользователю:
         <Table
           columns={[
             {

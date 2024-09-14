@@ -278,6 +278,29 @@ function B(u, t, i) {
   var o, r, f, e;
   l.__ && l.__(u, t), r = (o = typeof i == "function") ? null : i && i.__k || t.__k, f = [], e = [], O(t, u = (!o && i || t).__k = _(k, null, [u]), r || h, h, t.namespaceURI, !o && i ? [i] : r ? null : t.firstChild ? n.call(t.childNodes) : null, f, !o && i ? i : r ? r.__e : t.firstChild, o, e), j(f, u, e);
 }
+function G(n, l) {
+  var u = { __c: l = "__cC" + a++, __: n, Consumer: function(n2, l2) {
+    return n2.children(l2);
+  }, Provider: function(n2) {
+    var u2, t;
+    return this.getChildContext || (u2 = [], (t = {})[l] = this, this.getChildContext = function() {
+      return t;
+    }, this.componentWillUnmount = function() {
+      u2 = null;
+    }, this.shouldComponentUpdate = function(n3) {
+      this.props.value !== n3.value && u2.some(function(n4) {
+        n4.__e = true, M(n4);
+      });
+    }, this.sub = function(n3) {
+      u2.push(n3);
+      var l2 = n3.componentWillUnmount;
+      n3.componentWillUnmount = function() {
+        u2 && u2.splice(u2.indexOf(n3), 1), l2 && l2.call(n3);
+      };
+    }), n2.children;
+  } };
+  return u.Provider.__ = u.Consumer.contextType = u;
+}
 var n;
 var l;
 var u;
@@ -364,9 +387,18 @@ function y2(n2, u2) {
   var i2 = d2(t2++, 3);
   !c2.__s && C2(i2.__H, u2) && (i2.__ = n2, i2.i = u2, r2.__H.__h.push(i2));
 }
+function A2(n2) {
+  return o2 = 5, T2(function() {
+    return { current: n2 };
+  }, []);
+}
 function T2(n2, r2) {
   var u2 = d2(t2++, 7);
   return C2(u2.__H, r2) && (u2.__ = n2(), u2.__H = r2, u2.__h = n2), u2.__;
+}
+function x2(n2) {
+  var u2 = r2.context[n2.__c], i2 = d2(t2++, 9);
+  return i2.c = n2, u2 ? (i2.__ == null && (i2.__ = true, u2.sub(r2)), u2.props.value) : n2.__;
 }
 function j2() {
   for (var n2;n2 = f2.shift(); )
@@ -455,7 +487,7 @@ var k2 = typeof requestAnimationFrame == "function";
 
 // share/lib/api.ts
 var api = (url) => {
-  return fetch("/api/" + url).then((x2) => x2.json());
+  return fetch("/api/" + url).then((x3) => x3.json());
 };
 var api_default = {
   postByUser: (uid) => api("postsbyuser/" + uid),
@@ -495,26 +527,26 @@ var Table = ({ columns, data }) => {
     const [k3, dir] = sort;
     if (!k3)
       return data;
-    const s3 = columns.find((x2) => x2.key === k3)?.sort || ((x2) => x2);
+    const s3 = columns.find((x3) => x3.key === k3)?.sort || ((x3) => x3);
     return data.sort((a3, b2) => dir ? s3(a3[k3], a3) - s3(b2[k3], b2) : s3(b2[k3], b2) - s3(a3[k3], a3));
   }, [data, sort]);
   return /* @__PURE__ */ u3("table", {
     children: [
       /* @__PURE__ */ u3("thead", {
-        children: columns.map((x2) => /* @__PURE__ */ u3("th", {
-          onClick: () => onSort(x2.key),
+        children: columns.map((x3) => /* @__PURE__ */ u3("th", {
+          onClick: () => onSort(x3.key),
           style: { userSelect: "none" },
           children: [
-            x2.h || x2.key,
+            x3.h || x3.key,
             " ",
-            x2.key === sort[0] && (sort[1] ? "\u25B2" : "\u25BC")
+            x3.key === sort[0] && (sort[1] ? "\u25B2" : "\u25BC")
           ]
         }, undefined, true, undefined, this))
       }, undefined, false, undefined, this),
       /* @__PURE__ */ u3("tbody", {
-        children: sorted.slice(0, 1000).map((x2) => /* @__PURE__ */ u3("tr", {
+        children: sorted.slice(0, 1000).map((x3) => /* @__PURE__ */ u3("tr", {
           children: columns.map((y3) => /* @__PURE__ */ u3("td", {
-            children: y3.r ? y3.r(x2) : x2[y3.key]
+            children: y3.r ? y3.r(x3) : x3[y3.key]
           }, undefined, false, undefined, this))
         }, undefined, false, undefined, this))
       }, undefined, false, undefined, this)
@@ -631,6 +663,29 @@ var TopUsersTable = () => {
   }, undefined, false, undefined, this);
 };
 
+// share/ui/loader.tsx
+var Loader = () => {
+  const [step, setStep] = h2(1);
+  const spanRef = A2(null);
+  const steps = ["\uD83D\uDD50", "\uD83D\uDD51", "\uD83D\uDD52", "\uD83D\uDD53", "\uD83D\uDD54", "\uD83D\uDD55", "\uD83D\uDD56", "\uD83D\uDD57", "\uD83D\uDD58", "\uD83D\uDD59", "\uD83D\uDD5A", "\uD83D\uDD5B"];
+  y2(() => {
+    let s3 = 0;
+    const id = setInterval(() => {
+      if (!spanRef.current)
+        return;
+      spanRef.current.innerText = steps[s3++ % steps.length];
+    }, 100);
+    return () => clearInterval(id);
+    setTimeout(() => setStep(step + 1), 400);
+  }, [step]);
+  return /* @__PURE__ */ u3("span", {
+    ref: spanRef
+  }, undefined, false, undefined, this);
+  return /* @__PURE__ */ u3(k, {
+    children: steps[step % steps.length]
+  }, undefined, false, undefined, this);
+};
+
 // share/lib/useObject.tsx
 var useObject = (initial) => {
   const [obj, setObj] = h2(initial);
@@ -647,16 +702,28 @@ var dateFormat = new Intl.DateTimeFormat("ru", {
   minute: "2-digit"
 });
 
+// messageContext.tsx
+var MessageContext = G(null);
+
 // pages/all-posts-table.tsx
 var PAGE_COUNT = 1000;
 var AllPostsTable = () => {
   const allposts = useFetched(api_default.allpostsshort, []);
+  const setMsg = x2(MessageContext);
   const users = useFetched(api_default.users, {});
   const [filter, setFilter] = useObject({
     from: "",
     to: "",
     search: ""
   });
+  y2(() => {
+    setMsg?.(allposts.length ? "" : /* @__PURE__ */ u3(k, {
+      children: [
+        /* @__PURE__ */ u3(Loader, {}, undefined, false, undefined, this),
+        " \u0417\u0430\u0433\u0440\u0443\u0437 \u043E\u0447\u043A\u0430..."
+      ]
+    }, undefined, true, undefined, this));
+  }, [allposts]);
   const tabCnt = allposts.length / PAGE_COUNT | 0;
   const columns2 = [
     {
@@ -703,29 +770,29 @@ var AllPostsTable = () => {
       h: "\uD83D\uDCCB"
     }
   ];
-  const filtered = T2(() => allposts.filter((x2) => {
-    if (filter.from && x2.d < new Date(filter.from).getTime() / 1000)
+  const filtered = T2(() => allposts.filter((x3) => {
+    if (filter.from && x3.d < new Date(filter.from).getTime() / 1000)
       return false;
-    if (filter.to && x2.d > new Date(filter.to).getTime() / 1000)
+    if (filter.to && x3.d > new Date(filter.to).getTime() / 1000)
       return false;
     if (filter.search) {
-      const name = users[x2.uid]?.first_name + " " + users[x2.uid]?.last_name;
-      if (!x2.uid?.toString().includes(filter.search) && !name.toLowerCase().includes(filter.search))
+      const name = users[x3.uid]?.first_name + " " + users[x3.uid]?.last_name;
+      if (!x3.uid?.toString().includes(filter.search) && !name.toLowerCase().includes(filter.search))
         return false;
     }
     return true;
   }), [filter, filter.search, allposts]);
   const total = T2(() => {
     const byUser = {};
-    for (const x2 of filtered) {
-      if (!byUser[x2.uid])
-        byUser[x2.uid] = { uid: x2.uid, all: 0, d: 0, c: 0, l: 0, t: 0 };
-      const rec = byUser[x2.uid];
+    for (const x3 of filtered) {
+      if (!byUser[x3.uid])
+        byUser[x3.uid] = { uid: x3.uid, all: 0, d: 0, c: 0, l: 0, t: 0 };
+      const rec = byUser[x3.uid];
       rec.all += 1;
-      rec.d += x2.d;
-      rec.c += x2.c;
-      rec.l += x2.l;
-      rec.t += x2.t;
+      rec.d += x3.d;
+      rec.c += x3.c;
+      rec.l += x3.l;
+      rec.t += x3.t;
     }
     return byUser;
   }, [filtered]);
@@ -757,7 +824,6 @@ var AllPostsTable = () => {
         ]
       }, undefined, true, undefined, this),
       /* @__PURE__ */ u3("div", {
-        style: { display: "grid", overflow: "auto", maxHeight: "70vh" },
         children: [
           /* @__PURE__ */ u3(Table, {
             columns: columns2,
@@ -814,6 +880,7 @@ var AllPostsTable = () => {
 var Card = ({ color, text }) => {
   const [col, setCol] = h2(color);
   const [tab, setTab] = h2(0);
+  const [msg, setMsg] = h2("");
   const randCol = () => {
     const newCol = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
     setCol(newCol);
@@ -821,8 +888,10 @@ var Card = ({ color, text }) => {
   y2(randCol, []);
   const tabs = [UserTable, TopUsersTable, AllPostsTable];
   const CurrentComponent = tabs[tab];
-  return /* @__PURE__ */ u3(k, {
+  return /* @__PURE__ */ u3(MessageContext.Provider, {
+    value: (msg2) => setMsg(msg2),
     children: [
+      msg,
       /* @__PURE__ */ u3("div", {
         class: "toolbar",
         children: [

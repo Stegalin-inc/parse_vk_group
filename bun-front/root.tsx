@@ -1,13 +1,17 @@
-import { render } from "preact";
+import { render, type ComponentChild } from "preact";
 import { useEffect, useState } from "preact/hooks";
 import { UserTable } from "./pages/user-table";
 import { TopUsersTable } from "./pages/top-users-table";
 import { AllPostsTable } from "./pages/all-posts-table";
+import { MessageContext } from "./messageContext";
 
 const Card = ({ color, text }: { color: string; text: string }) => {
   const [col, setCol] = useState(color);
 
   const [tab, setTab] = useState(0)
+  
+  const [msg, setMsg] = useState<ComponentChild>('')
+
 
   const randCol = () => {
     const newCol = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
@@ -21,7 +25,8 @@ const Card = ({ color, text }: { color: string; text: string }) => {
   const CurrentComponent = tabs[tab]
 
   return (
-    <>
+    <MessageContext.Provider value={msg=>setMsg(msg)}>
+      {msg}
       <div class="toolbar">
         <button class={tab == 0 ? 'selected' : ''} onClick={() => setTab(0)}>По пользователю</button>
         <button class={tab == 1 ? 'selected' : ''} onClick={() => setTab(1)}>Топ пользователей</button>
@@ -40,7 +45,7 @@ const Card = ({ color, text }: { color: string; text: string }) => {
       >
         {text}
       </div>
-    </>
+    </MessageContext.Provider>
   );
 };
 
