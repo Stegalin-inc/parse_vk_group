@@ -85,6 +85,7 @@ thead {
 th {
     background-color: var(--top-bar-color);
     cursor: pointer;
+    height: 10vh;
 }
 
 th:hover {
@@ -151,7 +152,7 @@ button {
     color: var(--accent-dark-color);
     border: none;
     border-radius: 20px;
-    padding: 5px 10px;
+    padding: 15px;
     cursor: pointer;
     transition-duration: 300ms;
 }
@@ -167,6 +168,7 @@ button.selected {
     gap: 15px;
     border-bottom: 1px solid var(--accent-dark-color);
     align-items: center;
+    overflow: auto;
 }
 
 input {

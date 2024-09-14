@@ -102,8 +102,6 @@ export const AllPostsTable = () => {
 
   return (
     <>
-      {/* <h5>Всего постов: {allposts.length}</h5>
-      <h5>Фильтровано: {filtered.length}</h5> */}
       <div className="toolbar">
         всего: {allposts.length} фильтр: {filtered.length}
         <input
@@ -129,11 +127,9 @@ export const AllPostsTable = () => {
         }
       </div> */}
       {/* <Table columns={columns} data={allposts.slice(PAGE_COUNT * page, PAGE_COUNT * page + PAGE_COUNT)} />; */}
-      <div style={{ height: 500, overflow: "auto" }}>
+      <div style={{ display: 'grid', overflow: 'auto' }}>
         <Table columns={columns} data={filtered} />
-      </div>
       По пользователю:
-      <div style={{ height: 500, overflow: "auto" }}>
         <Table
           columns={[
             {

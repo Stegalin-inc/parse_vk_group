@@ -24,14 +24,19 @@ const controllers: Record<string, Controller> = {
   users: () => Object.fromEntries(db.query.names.all().map((x: any) => [x.id, x])),
 } as const;
 
-Bun.serve({
-  tls: {
-    ca: Bun.file('./ca.pem'),
-    cert: Bun.file('./cert.pem'),
-    key: Bun.file('./key.pem'),
+const tls = await (async () => {try {
+  return {
+    ca: await Bun.file('./ca.pem').text(),
+    cert: await Bun.file('./cert.pem').text(),
+    key: await Bun.file('./key.pem').text(),
     rejectUnauthorized: false,
     serverName: 'stegleb.ru',
-  },
+  }
+} catch(e){}
+})()
+
+Bun.serve({
+  tls,
   async fetch(request, server) {
     const url = new URL(request.url);
     const [_, dest, controller, ...paths] = url.pathname.split("/");

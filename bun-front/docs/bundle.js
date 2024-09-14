@@ -638,6 +638,15 @@ var useObject = (initial) => {
   return [obj, set];
 };
 
+// share/lib/format.ts
+var dateFormat = new Intl.DateTimeFormat("ru", {
+  year: "2-digit",
+  day: "2-digit",
+  month: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit"
+});
+
 // pages/all-posts-table.tsx
 var PAGE_COUNT = 1000;
 var AllPostsTable = () => {
@@ -683,7 +692,7 @@ var AllPostsTable = () => {
     {
       key: "d",
       h: "\uD83D\uDCC6",
-      r: (row) => new Date(row.d * 1000).toLocaleString()
+      r: (row) => dateFormat.format(row.d * 1000)
     },
     {
       key: "e",
@@ -748,56 +757,55 @@ var AllPostsTable = () => {
         ]
       }, undefined, true, undefined, this),
       /* @__PURE__ */ u3("div", {
-        style: { height: 500, overflow: "auto" },
-        children: /* @__PURE__ */ u3(Table, {
-          columns: columns2,
-          data: filtered
-        }, undefined, false, undefined, this)
-      }, undefined, false, undefined, this),
-      "\u041F\u043E \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E:",
-      /* @__PURE__ */ u3("div", {
-        style: { height: 500, overflow: "auto" },
-        children: /* @__PURE__ */ u3(Table, {
-          columns: [
-            {
-              key: "uid",
-              h: "\uD83D\uDE4D\u200D\u2642\uFE0F",
-              r: (row) => /* @__PURE__ */ u3("a", {
-                href: `https://vk.com/id${row.uid}`,
-                target: "_blank",
-                children: [
-                  users[row.uid]?.first_name,
-                  " ",
-                  users[row.uid]?.last_name
-                ]
-              }, undefined, true, undefined, this)
-            },
-            {
-              key: "all",
-              h: "\u270F"
-            },
-            {
-              key: "c",
-              h: "\uD83D\uDCDD"
-            },
-            {
-              key: "l",
-              h: "\u2764"
-            },
-            {
-              key: "t",
-              h: "\uD83D\uDCCB"
-            },
-            {
-              key: "mean",
-              h: "\u0441\u0440\u0435\u0434\u043D\u0438\u0439 \u2764",
-              r: (row) => row.l / row.all,
-              sort: (_2, a3) => !a3 ? 0 : (a3.l ?? 0) / (a3.all || 1)
-            }
-          ],
-          data: Object.values(total)
-        }, undefined, false, undefined, this)
-      }, undefined, false, undefined, this)
+        style: { display: "grid", overflow: "auto" },
+        children: [
+          /* @__PURE__ */ u3(Table, {
+            columns: columns2,
+            data: filtered
+          }, undefined, false, undefined, this),
+          "\u041F\u043E \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E:",
+          /* @__PURE__ */ u3(Table, {
+            columns: [
+              {
+                key: "uid",
+                h: "\uD83D\uDE4D\u200D\u2642\uFE0F",
+                r: (row) => /* @__PURE__ */ u3("a", {
+                  href: `https://vk.com/id${row.uid}`,
+                  target: "_blank",
+                  children: [
+                    users[row.uid]?.first_name,
+                    " ",
+                    users[row.uid]?.last_name
+                  ]
+                }, undefined, true, undefined, this)
+              },
+              {
+                key: "all",
+                h: "\u270F"
+              },
+              {
+                key: "c",
+                h: "\uD83D\uDCDD"
+              },
+              {
+                key: "l",
+                h: "\u2764"
+              },
+              {
+                key: "t",
+                h: "\uD83D\uDCCB"
+              },
+              {
+                key: "mean",
+                h: "\u0441\u0440\u0435\u0434\u043D\u0438\u0439 \u2764",
+                r: (row) => row.l / row.all,
+                sort: (_2, a3) => !a3 ? 0 : (a3.l ?? 0) / (a3.all || 1)
+              }
+            ],
+            data: Object.values(total)
+          }, undefined, false, undefined, this)
+        ]
+      }, undefined, true, undefined, this)
     ]
   }, undefined, true, undefined, this);
 };
@@ -805,7 +813,7 @@ var AllPostsTable = () => {
 // root.tsx
 var Card = ({ color, text }) => {
   const [col, setCol] = h2(color);
-  const [tab, setTab] = h2(0);
+  const [tab, setTab] = h2(2);
   const randCol = () => {
     const newCol = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
     setCol(newCol);
@@ -832,18 +840,17 @@ var Card = ({ color, text }) => {
             class: tab == 2 ? "selected" : "",
             onClick: () => setTab(2),
             children: "\u0412\u0441\u0435 \u043F\u043E\u0441\u0442\u044B"
+          }, undefined, false, undefined, this),
+          /* @__PURE__ */ u3("div", {
+            style: { flex: 1 }
+          }, undefined, false, undefined, this),
+          /* @__PURE__ */ u3("button", {
+            onClick: (e3) => document.body.classList.toggle("dark"),
+            children: "\u0422\u0435\u043C\u0430"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this),
-      /* @__PURE__ */ u3("div", {
-        style: { height: 500, overflow: "auto" },
-        children: /* @__PURE__ */ u3(CurrentComponent, {}, undefined, false, undefined, this)
-      }, undefined, false, undefined, this),
-      /* @__PURE__ */ u3("button", {
-        onClick: (e3) => document.body.classList.toggle("dark"),
-        style: { padding: "5px 12px", margin: 12 },
-        children: "\u0422\u0435\u043C\u0430"
-      }, undefined, false, undefined, this),
+      /* @__PURE__ */ u3(CurrentComponent, {}, undefined, false, undefined, this),
       /* @__PURE__ */ u3("div", {
         style: { background: col, padding: 10, border: "1px solid black", cursor: "pointer" },
         onClick: randCol,
