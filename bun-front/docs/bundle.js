@@ -783,19 +783,28 @@ var AllPostsTable = () => {
     }
     return true;
   }), [filter, filter.search, allposts]);
-  const total = T2(() => {
+  const [total, byDate, byHour] = T2(() => {
     const byUser = {};
+    const byDate2 = {};
+    const byHour2 = {};
     for (const x3 of filtered) {
+      const date = dateFormat.format(x3.d * 1000);
+      const d3 = date.slice(0, 8);
+      const h3 = date.slice(10, 12);
       if (!byUser[x3.uid])
         byUser[x3.uid] = { uid: x3.uid, all: 0, d: 0, c: 0, l: 0, t: 0 };
-      const rec = byUser[x3.uid];
-      rec.all += 1;
-      rec.d += x3.d;
-      rec.c += x3.c;
-      rec.l += x3.l;
-      rec.t += x3.t;
+      if (!byDate2[d3])
+        byDate2[d3] = { all: 0, d: x3.d, c: 0, l: 0, t: 0 };
+      if (!byHour2[h3])
+        byHour2[h3] = { all: 0, d: x3.d, c: 0, l: 0, t: 0 };
+      for (let rec of [byUser[x3.uid], byDate2[d3], byHour2[h3]]) {
+        rec.all += 1;
+        rec.c += x3.c;
+        rec.l += x3.l;
+        rec.t += x3.t;
+      }
     }
-    return byUser;
+    return [byUser, byDate2, byHour2];
   }, [filtered]);
   const totalColumns = [
     {
@@ -826,6 +835,11 @@ var AllPostsTable = () => {
     {
       key: "t",
       h: "\uD83D\uDCCB"
+    },
+    {
+      key: "d",
+      h: "\uD83D\uDCC6",
+      r: (row) => dateFormat.format(row.d * 1000)
     },
     {
       key: "mean",
@@ -873,6 +887,16 @@ var AllPostsTable = () => {
             class: tab == 1 ? "selected" : "",
             onClick: (e3) => setTab(1),
             children: "\u041F\u043E \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E"
+          }, undefined, false, undefined, this),
+          /* @__PURE__ */ u3("button", {
+            class: tab == 2 ? "selected" : "",
+            onClick: (e3) => setTab(2),
+            children: "\u041F\u043E \u0434\u0430\u0442\u0435"
+          }, undefined, false, undefined, this),
+          /* @__PURE__ */ u3("button", {
+            class: tab == 3 ? "selected" : "",
+            onClick: (e3) => setTab(3),
+            children: "\u041F\u043E \u0447\u0430\u0441\u0443"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this),
@@ -884,8 +908,16 @@ var AllPostsTable = () => {
             data: filtered
           }, undefined, false, undefined, this),
           tab == 1 && /* @__PURE__ */ u3(Table, {
-            columns: totalColumns,
+            columns: totalColumns.filter((x3) => x3.key !== "d"),
             data: Object.values(total)
+          }, undefined, false, undefined, this),
+          tab == 2 && /* @__PURE__ */ u3(Table, {
+            columns: totalColumns.filter((x3) => x3.key !== "uid"),
+            data: Object.values(byDate)
+          }, undefined, false, undefined, this),
+          tab == 3 && /* @__PURE__ */ u3(Table, {
+            columns: totalColumns.filter((x3) => x3.key !== "uid"),
+            data: Object.values(byHour)
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this)

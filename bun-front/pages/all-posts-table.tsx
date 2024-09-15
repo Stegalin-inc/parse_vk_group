@@ -94,18 +94,26 @@ export const AllPostsTable = () => {
     [filter, filter.search, allposts]
   );
 
-  const total = useMemo(() => {
+  const [total, byDate, byHour] = useMemo(() => {
     const byUser: any = {};
+    const byDate: any = {};
+    const byHour: any = {};
     for (const x of filtered) {
+      const date = dateFormat.format(x.d*1000)
+      const d = date.slice(0, 8)
+      const h = date.slice(10, 12)
+      // debugger
       if (!byUser[x.uid]) byUser[x.uid] = { uid: x.uid, all: 0, d: 0, c: 0, l: 0, t: 0 };
-      const rec = byUser[x.uid];
-      rec.all += 1;
-      rec.d += x.d;
-      rec.c += x.c;
-      rec.l += x.l;
-      rec.t += x.t;
+      if (!byDate[d]) byDate[d] = {  all: 0, d: x.d, c: 0, l: 0, t: 0 };
+      if (!byHour[h]) byHour[h] = {  all: 0, d: x.d, c: 0, l: 0, t: 0 };
+      for(let rec of [byUser[x.uid], byDate[d], byHour[h]]){
+        rec.all += 1;
+        rec.c += x.c;
+        rec.l += x.l;
+        rec.t += x.t;
+      }
     }
-    return byUser;
+    return [byUser, byDate, byHour];
   }, [filtered]);
 
   const totalColumns: Column[] = [
@@ -133,6 +141,11 @@ export const AllPostsTable = () => {
     {
       key: "t",
       h: "📋",
+    },
+    {
+      key: "d",
+      h: "📆",
+      r: (row) => dateFormat.format(row.d * 1000),
     },
     {
       key: "mean",
@@ -165,13 +178,17 @@ export const AllPostsTable = () => {
       <div class="toolbar">
         <button class={tab == 0 ? 'selected' : ''} onClick={e => setTab(0)}>Все</button>
         <button class={tab == 1 ? 'selected' : ''} onClick={e => setTab(1)}>По пользователю</button>
+        <button class={tab == 2 ? 'selected' : ''} onClick={e => setTab(2)}>По дате</button>
+        <button class={tab == 3 ? 'selected' : ''} onClick={e => setTab(3)}>По часу</button>
       </div>
       <div style={{ display: 'grid', overflowY: 'auto', maxHeight: '100vh' }}>
         {tab == 0 && <Table columns={columns} data={filtered} />}
         {tab == 1 && <Table
-          columns={totalColumns}
+          columns={totalColumns.filter(x=>x.key!=='d')}
           data={Object.values(total)}
-        />}
+          />}
+          {tab == 2 && <Table columns={totalColumns.filter(x=>x.key!=='uid')} data={Object.values(byDate)} />}
+          {tab == 3 && <Table columns={totalColumns.filter(x=>x.key!=='uid')} data={Object.values(byHour)} />}
       </div>
     </>
   );
