@@ -31,10 +31,10 @@
     }
   ],
   "id": "vkfobdb",
-  "start_url": "/",
+  "start_url": "/vk",
   "background_color": "#839bff",
   "display": "standalone",
-  "scope": "/",
+  "scope": "/vk",
   "theme_color": "#839bff",
   "description": "database for vk posts and comments from public 'social phobia'"
 }
