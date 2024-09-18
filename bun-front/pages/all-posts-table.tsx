@@ -6,6 +6,7 @@ import { Loader } from "../share/ui/loader";
 import { useObject } from "../share/lib/useObject";
 import { dateFormat } from "../share/lib/format";
 import { MessageContext } from "../messageContext";
+import { Chart } from "../share/ui/chart";
 
 const PAGE_COUNT = 1000;
 
@@ -26,51 +27,7 @@ export const AllPostsTable = () => {
 
   const tabCnt = (allposts.length / PAGE_COUNT) | 0;
 
-  const columns: Column[] = [
-    {
-      key: "id",
-      h: "ID",
-      r: (row) => (
-        <a href={`https://vk.com/wall-100407134_${row.id}`} target="_blank">
-          {row.id}
-        </a>
-      ),
-    },
-    {
-      key: "uid",
-      h: "🙍‍♂️",
-      r: (row) => (
-        <a href={`https://vk.com/id${row.uid}`} target="_blank">
-          {users[row.uid]?.first_name} {users[row.uid]?.last_name}
-        </a>
-      ),
-    },
-    {
-      key: "c",
-      h: "📝",
-    },
-    {
-      key: "l",
-      h: "❤",
-    },
-    /* {
-        "key": "ul"
-        ,h: 'Пользователь'
-      }, */
-    {
-      key: "d",
-      h: "📆",
-      r: (row) => dateFormat.format(row.d * 1000),
-    },
-    {
-      key: "e",
-      h: "📆✏",
-    },
-    {
-      key: "t",
-      h: "📋",
-    },
-  ];
+  const columns: Column[] = getCols(users, ['id', 'uid', 'c', 'l', 't', 'd',]);
 
   const filtered = useMemo(
     () =>
@@ -102,7 +59,6 @@ export const AllPostsTable = () => {
       const date = dateFormat.format(x.d*1000)
       const d = date.slice(0, 8)
       const h = date.slice(10, 12)
-      // debugger
       if (!byUser[x.uid]) byUser[x.uid] = { uid: x.uid, all: 0, d: 0, c: 0, l: 0, t: 0 };
       if (!byDate[d]) byDate[d] = {  all: 0, d: x.d, c: 0, l: 0, t: 0 };
       if (!byHour[h]) byHour[h] = {  all: 0, d: x.d, c: 0, l: 0, t: 0 };
@@ -116,44 +72,8 @@ export const AllPostsTable = () => {
     return [byUser, byDate, byHour];
   }, [filtered]);
 
-  const totalColumns: Column[] = [
-    {
-      key: "uid",
-      h: "🙍‍♂️",
-      r: (row) => (
-        <a href={`https://vk.com/id${row.uid}`} target="_blank">
-          {users[row.uid]?.first_name} {users[row.uid]?.last_name}
-        </a>
-      ),
-    },
-    {
-      key: "all",
-      h: "✏",
-    },
-    {
-      key: "c",
-      h: "📝",
-    },
-    {
-      key: "l",
-      h: "❤",
-    },
-    {
-      key: "t",
-      h: "📋",
-    },
-    {
-      key: "d",
-      h: "📆",
-      r: (row) => dateFormat.format(row.d * 1000),
-    },
-    {
-      key: "mean",
-      h: "средний ❤",
-      r: (row) => row.l / row.all,
-      sort: (_, a) => (!a ? 0 : (a.l ?? 0) / (a.all || 1)),
-    },
-  ];
+  const totalColumns: Column[] = getCols(users, ['uid', 'all', 'c', 'l', 't', 'd', 'mean']);
+  
   return (
     <>
       <div className="toolbar">
@@ -182,6 +102,7 @@ export const AllPostsTable = () => {
         <button class={tab == 3 ? 'selected' : ''} onClick={e => setTab(3)}>По часу</button>
       </div>
       <div style={{ display: 'grid', overflowY: 'auto', maxHeight: '100vh' }}>
+        <Chart data={Object.values(byHour)} getter={r=>r.all/400} />
         {tab == 0 && <Table columns={columns} data={filtered} />}
         {tab == 1 && <Table
           columns={totalColumns.filter(x=>x.key!=='d')}
@@ -193,3 +114,64 @@ export const AllPostsTable = () => {
     </>
   );
 };
+
+const getCols = (users: any, cols=['id']): Column[] => {
+  const all: Column[] =  [
+    {
+      key: "id",
+      h: "ID",
+      r: (row) => (
+        <a href={`https://vk.com/wall-100407134_${row.id}`} target="_blank">
+          {row.id}
+        </a>
+      ),
+    },
+    {
+      key: "uid",
+      h: "🙍‍♂️",
+      r: (row) => (
+        <a href={`https://vk.com/id${row.uid}`} target="_blank">
+          {users[row.uid]?.first_name} {users[row.uid]?.last_name}
+        </a>
+      ),
+    },
+    {
+      key: "all",
+      h: "✏",
+    },
+    {
+      key: "c",
+      h: "📝",
+    },
+    {
+      key: "l",
+      h: "❤",
+    },
+    /* {
+        "key": "ul"
+        ,h: 'Пользователь'
+      }, */
+    {
+      key: "d",
+      h: "📆",
+      r: (row) => dateFormat.format(row.d * 1000),
+    },
+    {
+      key: "e",
+      h: "📆✏",
+    },
+    {
+      key: "t",
+      h: "📋",
+    },
+    {
+      key: "mean",
+      h: "средний ❤",
+      r: (row) => row.l / row.all,
+      sort: (_, a) => (!a ? 0 : (a.l ?? 0) / (a.all || 1)),
+    },
+  ];
+
+  return cols.map(x=>all.find(c=>c.key===x)!)
+}
+

@@ -705,6 +705,28 @@ var dateFormat = new Intl.DateTimeFormat("ru", {
 // messageContext.tsx
 var MessageContext = G(null);
 
+// share/ui/chart.tsx
+var Chart = ({ data, getter, scale = 7, h: h3 = 150, w: w3 = 300 }) => {
+  const cnvRef = A2(null);
+  y2(() => {
+    const ctx = cnvRef.current?.getContext("2d");
+    for (let i4 = 0;i4 < data.length; ++i4) {
+      console.log(i4 * scale, getter(data[i4]) * scale);
+      ctx?.lineTo(i4 * scale, h3 - getter(data[i4]) * scale);
+    }
+  }, [data]);
+  return /* @__PURE__ */ u3("canvas", {
+    ref: cnvRef,
+    height: h3,
+    width: w3
+  }, undefined, false, undefined, this);
+  return /* @__PURE__ */ u3(k, {
+    children: data.forEach((x3, i4) => {
+      return i4;
+    })
+  }, undefined, false, undefined, this);
+};
+
 // pages/all-posts-table.tsx
 var PAGE_COUNT = 1000;
 var AllPostsTable = () => {
@@ -726,51 +748,7 @@ var AllPostsTable = () => {
     }, undefined, true, undefined, this));
   }, [allposts]);
   const tabCnt = allposts.length / PAGE_COUNT | 0;
-  const columns2 = [
-    {
-      key: "id",
-      h: "ID",
-      r: (row) => /* @__PURE__ */ u3("a", {
-        href: `https://vk.com/wall-100407134_${row.id}`,
-        target: "_blank",
-        children: row.id
-      }, undefined, false, undefined, this)
-    },
-    {
-      key: "uid",
-      h: "\uD83D\uDE4D\u200D\u2642\uFE0F",
-      r: (row) => /* @__PURE__ */ u3("a", {
-        href: `https://vk.com/id${row.uid}`,
-        target: "_blank",
-        children: [
-          users[row.uid]?.first_name,
-          " ",
-          users[row.uid]?.last_name
-        ]
-      }, undefined, true, undefined, this)
-    },
-    {
-      key: "c",
-      h: "\uD83D\uDCDD"
-    },
-    {
-      key: "l",
-      h: "\u2764"
-    },
-    {
-      key: "d",
-      h: "\uD83D\uDCC6",
-      r: (row) => dateFormat.format(row.d * 1000)
-    },
-    {
-      key: "e",
-      h: "\uD83D\uDCC6\u270F"
-    },
-    {
-      key: "t",
-      h: "\uD83D\uDCCB"
-    }
-  ];
+  const columns2 = getCols(users, ["id", "uid", "c", "l", "t", "d"]);
   const filtered = T2(() => allposts.filter((x3) => {
     if (filter.from && x3.d < new Date(filter.from).getTime() / 1000)
       return false;
@@ -806,48 +784,7 @@ var AllPostsTable = () => {
     }
     return [byUser, byDate2, byHour2];
   }, [filtered]);
-  const totalColumns = [
-    {
-      key: "uid",
-      h: "\uD83D\uDE4D\u200D\u2642\uFE0F",
-      r: (row) => /* @__PURE__ */ u3("a", {
-        href: `https://vk.com/id${row.uid}`,
-        target: "_blank",
-        children: [
-          users[row.uid]?.first_name,
-          " ",
-          users[row.uid]?.last_name
-        ]
-      }, undefined, true, undefined, this)
-    },
-    {
-      key: "all",
-      h: "\u270F"
-    },
-    {
-      key: "c",
-      h: "\uD83D\uDCDD"
-    },
-    {
-      key: "l",
-      h: "\u2764"
-    },
-    {
-      key: "t",
-      h: "\uD83D\uDCCB"
-    },
-    {
-      key: "d",
-      h: "\uD83D\uDCC6",
-      r: (row) => dateFormat.format(row.d * 1000)
-    },
-    {
-      key: "mean",
-      h: "\u0441\u0440\u0435\u0434\u043D\u0438\u0439 \u2764",
-      r: (row) => row.l / row.all,
-      sort: (_2, a3) => !a3 ? 0 : (a3.l ?? 0) / (a3.all || 1)
-    }
-  ];
+  const totalColumns = getCols(users, ["uid", "all", "c", "l", "t", "d", "mean"]);
   return /* @__PURE__ */ u3(k, {
     children: [
       /* @__PURE__ */ u3("div", {
@@ -903,6 +840,10 @@ var AllPostsTable = () => {
       /* @__PURE__ */ u3("div", {
         style: { display: "grid", overflowY: "auto", maxHeight: "100vh" },
         children: [
+          /* @__PURE__ */ u3(Chart, {
+            data: Object.values(byHour),
+            getter: (r3) => r3.all / 400
+          }, undefined, false, undefined, this),
           tab == 0 && /* @__PURE__ */ u3(Table, {
             columns: columns2,
             data: filtered
@@ -923,6 +864,64 @@ var AllPostsTable = () => {
       }, undefined, true, undefined, this)
     ]
   }, undefined, true, undefined, this);
+};
+var getCols = (users, cols = ["id"]) => {
+  const all = [
+    {
+      key: "id",
+      h: "ID",
+      r: (row) => /* @__PURE__ */ u3("a", {
+        href: `https://vk.com/wall-100407134_${row.id}`,
+        target: "_blank",
+        children: row.id
+      }, undefined, false, undefined, this)
+    },
+    {
+      key: "uid",
+      h: "\uD83D\uDE4D\u200D\u2642\uFE0F",
+      r: (row) => /* @__PURE__ */ u3("a", {
+        href: `https://vk.com/id${row.uid}`,
+        target: "_blank",
+        children: [
+          users[row.uid]?.first_name,
+          " ",
+          users[row.uid]?.last_name
+        ]
+      }, undefined, true, undefined, this)
+    },
+    {
+      key: "all",
+      h: "\u270F"
+    },
+    {
+      key: "c",
+      h: "\uD83D\uDCDD"
+    },
+    {
+      key: "l",
+      h: "\u2764"
+    },
+    {
+      key: "d",
+      h: "\uD83D\uDCC6",
+      r: (row) => dateFormat.format(row.d * 1000)
+    },
+    {
+      key: "e",
+      h: "\uD83D\uDCC6\u270F"
+    },
+    {
+      key: "t",
+      h: "\uD83D\uDCCB"
+    },
+    {
+      key: "mean",
+      h: "\u0441\u0440\u0435\u0434\u043D\u0438\u0439 \u2764",
+      r: (row) => row.l / row.all,
+      sort: (_2, a3) => !a3 ? 0 : (a3.l ?? 0) / (a3.all || 1)
+    }
+  ];
+  return cols.map((x3) => all.find((c3) => c3.key === x3));
 };
 
 // root.tsx
