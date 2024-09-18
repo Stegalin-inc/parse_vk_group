@@ -35,6 +35,32 @@ body.xuesos {
     --shadow-color: #ffffff36;
 }
 
+body.sf-logo {
+    --cell-border-color: lightgray;
+    --window-background-color: #ededf5;
+    --card-color: #69A08D;
+    --background-color: #E3E1F3;
+    --top-bar-color: #eff0f5;
+    --delineter-color: #7F6CA3;
+    --accent-light-color: #8E82B4;
+    --accent-dark-color: #35383D;
+    --text-color: rgb(26, 26, 26);
+    --shadow-color: #00000036;
+}
+
+body.sf-top {
+    --cell-border-color: lightgray;
+    --window-background-color: #4D484F;
+    --card-color: #4D484F;
+    --background-color: #ffffff;
+    --top-bar-color: #CDCBD0;
+    --delineter-color: #7F6CA3;
+    --accent-light-color: #CA97E6;
+    --accent-dark-color: #8644B8;
+    --text-color: #362F37;
+    --shadow-color: #00000036;
+}
+
 * {
     font-size: 11px;
 }
