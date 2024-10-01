@@ -706,19 +706,54 @@ var dateFormat = new Intl.DateTimeFormat("ru", {
 var MessageContext = G(null);
 
 // share/ui/chart.tsx
-var Chart = ({ data, getter, scale = 7, h: h3 = 150, w: w3 = 300 }) => {
+var Chart = ({ data, charts, scale = 7, h: h3 = 150, w: w3 = 300, tip }) => {
   const cnvRef = A2(null);
+  const [ctx, setCtx] = h2(null);
+  const [zoom, setZoom] = h2(1);
   y2(() => {
-    const ctx = cnvRef.current?.getContext("2d");
-    for (let i4 = 0;i4 < data.length; ++i4) {
-      console.log(i4 * scale, getter(data[i4]) * scale);
-      ctx?.lineTo(i4 * scale, h3 - getter(data[i4]) * scale);
+    if (!ctx)
+      return;
+    ctx.clearRect(0, 0, w3, h3);
+    for (let chart of charts) {
+      const getter = chart.getter;
+      ctx.strokeStyle = chart.color;
+      ctx.beginPath();
+      for (let i4 = 0;i4 < data.length; ++i4) {
+        ctx.lineTo(i4 * scale * zoom, h3 - getter(data[i4]) * scale);
+        ctx.stroke();
+      }
     }
   }, [data]);
-  return /* @__PURE__ */ u3("canvas", {
-    ref: cnvRef,
-    height: h3,
-    width: w3
+  y2(() => {
+    if (!ctx)
+      return;
+    ctx.scale(zoom, 1);
+  }, [zoom]);
+  const wheel = (e3) => {
+    e3.stopPropagation();
+    if (e3.deltaY > 0) {
+      setZoom(zoom * 1.1);
+    } else {
+      setZoom(zoom / 1.1);
+    }
+  };
+  const onMouseMove = (e3) => {
+    const x3 = ~~(e3.offsetX / scale);
+    tip(data[x3], x3);
+  };
+  return /* @__PURE__ */ u3(k, {
+    children: /* @__PURE__ */ u3("canvas", {
+      ref: (e3) => {
+        if (!e3)
+          return;
+        cnvRef.current = e3;
+        setCtx(e3.getContext("2d"));
+      },
+      height: h3,
+      width: w3,
+      onWheel: wheel,
+      onMouseMove
+    }, undefined, false, undefined, this)
   }, undefined, false, undefined, this);
   return /* @__PURE__ */ u3(k, {
     children: data.forEach((x3, i4) => {
@@ -789,6 +824,22 @@ var AllPostsTable = () => {
     children: [
       /* @__PURE__ */ u3("div", {
         className: "toolbar",
+        children: /* @__PURE__ */ u3(Chart, {
+          data: Object.values(byDate),
+          charts: [
+            { getter: (r3) => r3.all / 2, color: "black" },
+            { getter: (r3) => r3.c / 20, color: "blue" },
+            { getter: (r3) => r3.l / 6, color: "red" }
+          ],
+          h: 800,
+          tip: (r3, i4) => {
+            console.log(`${i4}: cnt: ${r3.all}, \uD83D\uDCDD: ${r3.c}, \u2764: ${r3.l}, t: ${dateFormat.format(r3.d * 1000)}`);
+          },
+          w: Object.keys(byDate).length * 7
+        }, undefined, false, undefined, this)
+      }, undefined, false, undefined, this),
+      /* @__PURE__ */ u3("div", {
+        className: "toolbar",
         children: [
           "\u0432\u0441\u0435\u0433\u043E: ",
           allposts.length,
@@ -840,10 +891,6 @@ var AllPostsTable = () => {
       /* @__PURE__ */ u3("div", {
         style: { display: "grid", overflowY: "auto", maxHeight: "100vh" },
         children: [
-          /* @__PURE__ */ u3(Chart, {
-            data: Object.values(byHour),
-            getter: (r3) => r3.all / 400
-          }, undefined, false, undefined, this),
           tab == 0 && /* @__PURE__ */ u3(Table, {
             columns: columns2,
             data: filtered

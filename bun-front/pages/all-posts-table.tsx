@@ -12,9 +12,9 @@ const PAGE_COUNT = 1000;
 
 export const AllPostsTable = () => {
   const allposts = useFetched(api.allpostsshort, []);
-  const setMsg = useContext(MessageContext)
+  const setMsg = useContext(MessageContext);
   const users = useFetched(api.users, {});
-  const [tab, setTab] = useState(0)
+  const [tab, setTab] = useState(0);
   const [filter, setFilter] = useObject({
     from: "",
     to: "",
@@ -22,12 +22,20 @@ export const AllPostsTable = () => {
   });
 
   useEffect(() => {
-    setMsg?.(allposts.length ? '' : <><Loader /> Загруз очка...</>)
-  }, [allposts])
+    setMsg?.(
+      allposts.length ? (
+        ""
+      ) : (
+        <>
+          <Loader /> Загруз очка...
+        </>
+      )
+    );
+  }, [allposts]);
 
   const tabCnt = (allposts.length / PAGE_COUNT) | 0;
 
-  const columns: Column[] = getCols(users, ['id', 'uid', 'c', 'l', 't', 'd',]);
+  const columns: Column[] = getCols(users, ["id", "uid", "c", "l", "t", "d"]);
 
   const filtered = useMemo(
     () =>
@@ -56,13 +64,13 @@ export const AllPostsTable = () => {
     const byDate: any = {};
     const byHour: any = {};
     for (const x of filtered) {
-      const date = dateFormat.format(x.d*1000)
-      const d = date.slice(0, 8)
-      const h = date.slice(10, 12)
+      const date = dateFormat.format(x.d * 1000);
+      const d = date.slice(0, 8);
+      const h = date.slice(10, 12);
       if (!byUser[x.uid]) byUser[x.uid] = { uid: x.uid, all: 0, d: 0, c: 0, l: 0, t: 0 };
-      if (!byDate[d]) byDate[d] = {  all: 0, d: x.d, c: 0, l: 0, t: 0 };
-      if (!byHour[h]) byHour[h] = {  all: 0, d: x.d, c: 0, l: 0, t: 0 };
-      for(let rec of [byUser[x.uid], byDate[d], byHour[h]]){
+      if (!byDate[d]) byDate[d] = { all: 0, d: x.d, c: 0, l: 0, t: 0 };
+      if (!byHour[h]) byHour[h] = { all: 0, d: x.d, c: 0, l: 0, t: 0 };
+      for (let rec of [byUser[x.uid], byDate[d], byHour[h]]) {
         rec.all += 1;
         rec.c += x.c;
         rec.l += x.l;
@@ -72,10 +80,27 @@ export const AllPostsTable = () => {
     return [byUser, byDate, byHour];
   }, [filtered]);
 
-  const totalColumns: Column[] = getCols(users, ['uid', 'all', 'c', 'l', 't', 'd', 'mean']);
-  
+  const totalColumns: Column[] = getCols(users, ["uid", "all", "c", "l", "t", "d", "mean"]);
+
   return (
     <>
+      <div className="toolbar">
+        <Chart
+          data={Object.values(byDate)}
+          charts={[
+            { getter: (r) => r.all / 2, color: "black" },
+            { getter: (r) => r.c / 20, color: "blue" },
+            { getter: (r) => r.l / 6, color: "red" },
+          ]}
+          h={800}
+          tip={(r, i) => {
+            console.log(
+              `${i}: cnt: ${r.all}, 📝: ${r.c}, ❤: ${r.l}, t: ${dateFormat.format(r.d * 1000)}`
+            );
+          }}
+          w={Object.keys(byDate).length * 7}
+        />
+      </div>
       <div className="toolbar">
         всего: {allposts.length} фильтр: {filtered.length}
         <input
@@ -96,27 +121,43 @@ export const AllPostsTable = () => {
         />
       </div>
       <div class="toolbar">
-        <button class={tab == 0 ? 'selected' : ''} onClick={e => setTab(0)}>Все</button>
-        <button class={tab == 1 ? 'selected' : ''} onClick={e => setTab(1)}>По пользователю</button>
-        <button class={tab == 2 ? 'selected' : ''} onClick={e => setTab(2)}>По дате</button>
-        <button class={tab == 3 ? 'selected' : ''} onClick={e => setTab(3)}>По часу</button>
+        <button class={tab == 0 ? "selected" : ""} onClick={(e) => setTab(0)}>
+          Все
+        </button>
+        <button class={tab == 1 ? "selected" : ""} onClick={(e) => setTab(1)}>
+          По пользователю
+        </button>
+        <button class={tab == 2 ? "selected" : ""} onClick={(e) => setTab(2)}>
+          По дате
+        </button>
+        <button class={tab == 3 ? "selected" : ""} onClick={(e) => setTab(3)}>
+          По часу
+        </button>
       </div>
-      <div style={{ display: 'grid', overflowY: 'auto', maxHeight: '100vh' }}>
-        <Chart data={Object.values(byHour)} getter={r=>r.all/400} />
+      <div style={{ display: "grid", overflowY: "auto", maxHeight: "100vh" }}>
         {tab == 0 && <Table columns={columns} data={filtered} />}
-        {tab == 1 && <Table
-          columns={totalColumns.filter(x=>x.key!=='d')}
-          data={Object.values(total)}
-          />}
-          {tab == 2 && <Table columns={totalColumns.filter(x=>x.key!=='uid')} data={Object.values(byDate)} />}
-          {tab == 3 && <Table columns={totalColumns.filter(x=>x.key!=='uid')} data={Object.values(byHour)} />}
+        {tab == 1 && (
+          <Table columns={totalColumns.filter((x) => x.key !== "d")} data={Object.values(total)} />
+        )}
+        {tab == 2 && (
+          <Table
+            columns={totalColumns.filter((x) => x.key !== "uid")}
+            data={Object.values(byDate)}
+          />
+        )}
+        {tab == 3 && (
+          <Table
+            columns={totalColumns.filter((x) => x.key !== "uid")}
+            data={Object.values(byHour)}
+          />
+        )}
       </div>
     </>
   );
 };
 
-const getCols = (users: any, cols=['id']): Column[] => {
-  const all: Column[] =  [
+const getCols = (users: any, cols = ["id"]): Column[] => {
+  const all: Column[] = [
     {
       key: "id",
       h: "ID",
@@ -172,6 +213,5 @@ const getCols = (users: any, cols=['id']): Column[] => {
     },
   ];
 
-  return cols.map(x=>all.find(c=>c.key===x)!)
-}
-
+  return cols.map((x) => all.find((c) => c.key === x)!);
+};
